@@ -1,0 +1,26 @@
+.bz-admin{--bz-navy:#1B3764;--bz-orange:#F6A81C;margin-top:8px}
+.bz-admin__tabs{display:flex;flex-wrap:wrap;gap:4px;border-bottom:1px solid #c3c4c7;margin-bottom:16px}
+.bz-admin__tab{border:1px solid transparent;border-bottom:0;background:transparent;padding:8px 14px;cursor:pointer;font-size:13px;border-radius:4px 4px 0 0;color:#1d2327}
+.bz-admin__tab:hover{background:#f0f0f1}
+.bz-admin__tab.is-active{background:#fff;border-color:#c3c4c7;margin-bottom:-1px;font-weight:600;color:var(--bz-navy)}
+.bz-admin__tab:focus-visible{outline:2px solid var(--bz-navy);outline-offset:-2px}
+.bz-admin__field{margin:0 0 14px}
+.bz-admin__field label,.bz-admin__label{display:block;font-weight:600;margin-bottom:4px}
+.bz-admin__field--checkbox label{display:inline-flex;align-items:center;gap:6px;font-weight:600}
+.bz-admin__field input.regular-text,.bz-admin__field select{max-width:100%}
+.bz-admin__field textarea{width:100%;max-width:820px}
+.bz-admin__heading{font-size:14px;margin:22px 0 10px;padding-top:14px;border-top:1px dashed #c3c4c7;color:var(--bz-navy)}
+.bz-admin__group{border:1px solid #dcdcde;border-radius:6px;padding:12px 14px 2px;margin:0 0 16px;background:#fbfbfc}
+.bz-admin__group legend{font-weight:600;padding:0 6px}
+.bz-admin__image{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.bz-admin__preview:empty{display:none}
+.bz-admin__preview img{display:block;max-width:96px;height:auto;border:1px solid #dcdcde;border-radius:4px;background:#fff}
+.bz-admin__repeater{margin:0 0 18px}
+.bz-admin__rows{display:flex;flex-direction:column;gap:10px;margin-bottom:10px}
+.bz-admin__row{border:1px solid #dcdcde;border-radius:6px;background:#fff}
+.bz-admin__row-bar{display:flex;align-items:center;gap:8px;padding:6px 10px;background:#f6f7f7;border-bottom:1px solid #dcdcde;border-radius:6px 6px 0 0}
+.bz-admin__row-num{font-weight:700;color:var(--bz-navy);margin-inline-end:auto}
+.bz-admin__row-bar .button-link{text-decoration:none}
+.bz-admin__row-fields{padding:12px 14px 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:0 20px}
+.bz-admin__row-fields .bz-admin__field--textarea{grid-column:1/-1}
+.bz-admin__row-fields textarea{max-width:100%}
