@@ -93,11 +93,19 @@ function bizmax_contact_is_rate_limited(): bool {
 }
 
 /**
- * Client IP, honouring Cloudflare's header when present.
+ * Client IP for rate limiting.
+ *
+ * REMOTE_ADDR is used by default (hosts behind Cloudflare normally restore the real
+ * IP at the web-server level). CF-Connecting-IP is honoured only when the site opts in
+ * with `define( 'BIZMAX_TRUST_CF_IP', true );` in wp-config.php, since a spoofed header
+ * on a directly reachable origin would otherwise bypass the limit.
  */
 function bizmax_client_ip(): string {
-	$candidates = array( 'HTTP_CF_CONNECTING_IP', 'REMOTE_ADDR' );
-	foreach ( $candidates as $header ) {
+	$headers = array( 'REMOTE_ADDR' );
+	if ( defined( 'BIZMAX_TRUST_CF_IP' ) && BIZMAX_TRUST_CF_IP ) {
+		array_unshift( $headers, 'HTTP_CF_CONNECTING_IP' );
+	}
+	foreach ( $headers as $header ) {
 		if ( ! empty( $_SERVER[ $header ] ) ) {
 			$ip = sanitize_text_field( wp_unslash( $_SERVER[ $header ] ) );
 			if ( filter_var( $ip, FILTER_VALIDATE_IP ) ) {

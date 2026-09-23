@@ -208,10 +208,29 @@ function bizmax_menu( string $location, string $menu_class, bool $fallback = tru
 			'container'      => false,
 			'menu_class'     => $menu_class,
 			'depth'          => 1,
-			'fallback_cb'    => $fallback ? 'wp_page_menu' : false,
+			'fallback_cb'    => $fallback ? 'bizmax_menu_fallback' : false,
 			'items_wrap'     => '<ul class="%2$s">%3$s</ul>',
 		)
 	);
+}
+
+/**
+ * Menu fallback (no menu assigned): a page list inside the same <ul class> the CSS expects.
+ *
+ * @param array<string,mixed> $args wp_nav_menu() arguments.
+ */
+function bizmax_menu_fallback( array $args ): void {
+	$items = wp_list_pages(
+		array(
+			'title_li' => '',
+			'depth'    => 1,
+			'echo'     => false,
+		)
+	);
+	if ( '' === $items ) {
+		return;
+	}
+	echo '<ul class="' . esc_attr( (string) $args['menu_class'] ) . '">' . $items . '</ul>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_list_pages() output is escaped by core.
 }
 
 /**

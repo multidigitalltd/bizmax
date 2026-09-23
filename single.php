@@ -9,9 +9,16 @@ defined( 'ABSPATH' ) || exit;
 
 get_header();
 
-if ( ! function_exists( 'elementor_theme_do_location' ) || ! elementor_theme_do_location( 'single' ) ) :
-	?>
-	<main id="main" class="bz-main bz-page">
+// Elementor Pro renders its single template (when one exists) inside the same <main> landmark
+// so the skip link and the drawer's inert handling keep working.
+ob_start();
+$bz_elementor_location = function_exists( 'elementor_theme_do_location' ) && elementor_theme_do_location( 'single' );
+$bz_elementor_output   = ob_get_clean();
+?>
+<main id="main" class="bz-main<?php echo $bz_elementor_location ? '' : ' bz-page'; ?>">
+<?php if ( $bz_elementor_location ) : ?>
+	<?php echo $bz_elementor_output; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Elementor template output. ?>
+<?php else : ?>
 		<?php
 		while ( have_posts() ) :
 			the_post();
@@ -32,8 +39,7 @@ if ( ! function_exists( 'elementor_theme_do_location' ) || ! elementor_theme_do_
 			}
 		endwhile;
 		?>
-	</main>
-	<?php
-endif;
-
+<?php endif; ?>
+</main>
+<?php
 get_footer();

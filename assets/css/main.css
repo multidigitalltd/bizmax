@@ -174,3 +174,15 @@ body.bz-drawer-open{overflow:hidden}
 @media (prefers-reduced-motion:reduce){
 	*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
 }
+
+/* ---- Comments ---- */
+.bz-comments{max-width:1152px;margin:40px auto 0}
+.bz-comments__title{font-size:28px;font-weight:800;margin:0 0 20px}
+.bz-comments__list,.bz-comments__list .children{list-style:none;margin:0;padding:0}
+.bz-comments__list .children{padding-inline-start:32px}
+.bz-comments__list .comment-body{border:1px solid var(--bz-border);border-radius:16px;padding:18px 20px;margin-bottom:16px}
+.comment-form label{display:block;font-weight:600;margin-bottom:4px}
+.comment-form input:not([type=checkbox]):not([type=submit]),.comment-form textarea{width:100%;max-width:640px;border:2px solid var(--bz-border);border-radius:14px;padding:10px 16px;font-family:inherit;font-size:16px}
+.comment-form input:focus,.comment-form textarea:focus{border-color:var(--bz-orange);outline:none;box-shadow:0 0 0 4px rgba(246,168,28,.18)}
+.comment-form .submit{background:var(--bz-navy);color:#fff;border:0;border-radius:999px;padding:12px 30px;font-weight:700;font-size:16px;cursor:pointer}
+.comment-form .submit:hover{background:var(--bz-orange);color:var(--bz-navy)}

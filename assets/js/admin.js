@@ -105,6 +105,12 @@
 			row.querySelectorAll('[name]').forEach(function (el) {
 				el.name = el.name.replace(/\[(\d+|__i__)\]/, '[' + i + ']');
 			});
+			// IDs follow "<prefix>-<index>-<field>"; only repeater indices are numeric segments.
+			['id', 'for', 'aria-describedby'].forEach(function (attr) {
+				row.querySelectorAll('[' + attr + ']').forEach(function (el) {
+					el.setAttribute(attr, el.getAttribute(attr).replace(/-(\d+|__i__)-/, '-' + i + '-'));
+				});
+			});
 		});
 		var add = rep.querySelector(':scope > [data-bz-add]');
 		add.disabled = rows.length >= parseInt(rep.dataset.max || '20', 10);
