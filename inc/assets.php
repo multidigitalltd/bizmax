@@ -53,6 +53,8 @@ function bizmax_enqueue_assets(): void {
 		wp_dequeue_style( 'wp-block-library' );
 		wp_dequeue_style( 'classic-theme-styles' );
 		wp_dequeue_style( 'global-styles' );
+		// Classic themes get the global styles printed again in the footer; skip that copy too.
+		remove_action( 'wp_footer', 'wp_enqueue_global_styles', 1 );
 	}
 }
 add_action( 'wp_enqueue_scripts', 'bizmax_enqueue_assets' );

@@ -69,6 +69,8 @@
 - תוכן דף הבית בשורת meta אחת (שאילתה אחת, בתוך ה-cache של הפוסט). ללא טבלאות, ללא autoload כבד.
 - Sanitization לפי סכימה בשמירה, Escaping בכל פלט, Nonce + `current_user_can` בשמירה, `permission_callback` ב-REST, `wp_safe_redirect` בלבד, אין `eval/base64`.
 - **Cloudflare Turnstile בטופס יצירת קשר:** כשהתוסף Simple Cloudflare Turnstile פעיל ומוגדרים בו מפתחות, מוצג אימות Cloudflare מעל כפתור השליחה. השרת מאמת את האסימון דרך פונקציית התוסף אחרי בדיקת השדות ולפני שליחת המייל. לכן שליחה ישירה ל-REST בלי אימות נדחית (403), ושום מייל לא נשלח. העיצוב, השפה, המראה, רשימת ה-IP הלבנה ומצב הגיבוי (failsafe) נלקחים מהגדרות התוסף. אפשר לכבות את האימות בטופס דרך Customizer ← "ביזמקס – פרטי קשר ופוטר". בלי התוסף, הטופס עובד כרגיל.
+- **דף בית רזה:** דף הבית בנוי כולו בתבנית, ולכן נכסים של תוספים שנטענים בכל עמוד ואינם בשימוש בו מוסרים ממנו בלבד: WooCommerce (CSS, עגלה, blockUI, js-cookie), JetEngine, JetAppointments, iCredit, גלילה חלקה (mousewheel-smooth-scroll) ושילוב Turnstile של טופסי אלמנטור. jQuery לא נטען שם, אלא אם סקריפט אחר תלוי בו. מעקב המקור של WooCommerce (sourcebuster ו-order attribution) נשמר. שאר העמודים לא מושפעים. את הרשימה אפשר לשנות במסנן `bizmax_home_unused_assets`, ומערך ריק מבטל את ההסרה.
+- כשאין בלוקים בעמוד, ה-global styles לא מודפסים גם בפוטר (כ-9KB). מה-head הוסרו קישורי RSD, WLW, generator ו-shortlink. כש-Turnstile פעיל, דף הבית מתחבר מראש ל-Cloudflare (preconnect).
 - Schema.org Organization מוזרק בדף הבית רק אם אין תוסף SEO (Yoast / Rank Math / AIOSEO).
 
 ## נגישות
@@ -99,6 +101,7 @@ inc/home-schema.php   הסכימה של דף הבית: מקטעים → שדות
 inc/home-content.php  קריאה / סניטציה / ברירות מחדל
 inc/home-admin.php    תיבת העריכה (לשוניות, מדיה, repeaters)
 inc/contact-form.php  REST של הטופס
+inc/performance.php   הסרת נכסי תוספים מדף הבית וניקוי head
 template-parts/home/  המקטעים
 ```
 
@@ -121,6 +124,7 @@ npx esbuild assets/js/a11y.js   --minify --target=es2017 --outfile=assets/js/a11
 
 ## יומן שינויים
 
+- **1.3.2** – ביצועים: דף הבית נטען בלי כ-75KB (דחוסים) ו-15 בקשות של תוספים שאינם בשימוש בו, ובהן 6 קבצי CSS שחסמו את הציור. גם ה-global styles הכפולים בפוטר הוסרו. פרטים ב"ביצועים ואבטחה".
 - **1.3.1** – כרטיסי "The School" ו"ביזלאבס" באזור "אודות" מקשרים ל-/theschool/ ול-/bizlabs-new/ (במקום לאזורים בדף). דף שנשמר עם הקישורים הישנים מתעדכן פעם אחת אוטומטית; קישור שנערך ידנית לא משתנה.
 - **1.3.0** – Cloudflare Turnstile בטופס יצירת קשר, דרך התוסף Simple Cloudflare Turnstile (ראו "ביצועים ואבטחה").
 - **1.2.4** – תפריט ההידר של העיצוב באתרים קיימים: בכניסה הראשונה ללוח הבקרה אחרי העדכון נוצר "ביזמקס – תפריט ראשי" (המתחם, אודות, דה סקול, תכנית ביזלאבס, יומן פעילויות, יצירת קשר – קישורים לאזורים בדף הבית של התבנית). הוא משויך להידר רק אם לא שויך שם תפריט אחר, ורץ פעם אחת בלבד.
