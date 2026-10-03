@@ -66,16 +66,21 @@ $bz_a11y      = bizmax_a11y_page_url();
 		</address>
 	</div>
 
-	<?php if ( $bz_privacy || $bz_a11y ) : ?>
-		<div class="bz-wrap bz-footer__legal">
-			<?php if ( $bz_a11y ) : ?>
-				<a href="<?php echo esc_url( $bz_a11y ); ?>"><?php esc_html_e( 'הצהרת נגישות', 'bizmax' ); ?></a>
-			<?php endif; ?>
-			<?php if ( $bz_privacy ) : ?>
-				<a href="<?php echo esc_url( $bz_privacy ); ?>"><?php esc_html_e( 'מדיניות הפרטיות', 'bizmax' ); ?></a>
-			<?php endif; ?>
-		</div>
-	<?php endif; ?>
+	<div class="bz-wrap bz-footer__legal">
+		<?php if ( $bz_privacy || $bz_a11y ) : ?>
+			<div class="bz-footer__links">
+				<?php if ( $bz_a11y ) : ?>
+					<a href="<?php echo esc_url( $bz_a11y ); ?>"><?php esc_html_e( 'הצהרת נגישות', 'bizmax' ); ?></a>
+				<?php endif; ?>
+				<?php if ( $bz_privacy ) : ?>
+					<a href="<?php echo esc_url( $bz_privacy ); ?>"><?php esc_html_e( 'מדיניות הפרטיות', 'bizmax' ); ?></a>
+				<?php endif; ?>
+			</div>
+		<?php endif; ?>
+		<p class="bz-footer__credit">
+			<a href="https://m-d.co.il/" target="_blank" rel="noopener"><span lang="en" dir="ltr">UX/UI &amp; Dev by <strong>Multi Digital</strong></span><span class="screen-reader-text"> <?php esc_html_e( '(נפתח בחלון חדש)', 'bizmax' ); ?></span></a>
+		</p>
+	</div>
 	<?php if ( bizmax_mod( 'bizmax_show_whatsapp' ) && '' !== $bz_whatsapp ) : ?>
 		<a class="bz-whatsapp" href="<?php echo esc_url( 'https://wa.me/' . $bz_whatsapp ); ?>" target="_blank" rel="noopener noreferrer" aria-label="<?php esc_attr_e( 'שיחה בוואטסאפ (נפתח בחלון חדש)', 'bizmax' ); ?>"><?php bizmax_whatsapp_icon(); ?></a>
 	<?php endif; ?>
