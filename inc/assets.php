@@ -42,6 +42,7 @@ function bizmax_enqueue_assets(): void {
 					'success' => __( 'נשלח! נחזור אליכם בקרוב', 'bizmax' ),
 					'error'   => __( 'השליחה נכשלה, נסו שוב בעוד רגע.', 'bizmax' ),
 					'quote'   => __( 'המלצה %1$d מתוך %2$d', 'bizmax' ),
+					'human'   => __( 'נא להשלים את אימות האבטחה שמעל כפתור השליחה.', 'bizmax' ),
 				),
 			)
 		);

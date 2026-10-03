@@ -192,9 +192,28 @@
 			return ok;
 		};
 
+		// Cloudflare Turnstile widget (Simple Cloudflare Turnstile plugin), when the theme renders it.
+		var turnstileBox = form.querySelector('[data-bz-turnstile]');
+		var turnstileField = function (name) {
+			var el = form.querySelector('[name="' + name + '"]');
+			return el ? el.value : '';
+		};
+		var turnstileReset = function () {
+			var widget = turnstileBox && turnstileBox.querySelector('.cf-turnstile');
+			if (widget && window.turnstile && typeof window.turnstile.reset === 'function') {
+				try { window.turnstile.reset(widget); } catch (err) { /* widget not rendered yet */ }
+			}
+		};
+
 		form.addEventListener('submit', function (e) {
 			e.preventDefault();
 			if (form.classList.contains('is-success') || !validate()) {
+				return;
+			}
+			var turnstileWidget = turnstileBox && turnstileBox.querySelector('.cf-turnstile');
+			if (turnstileWidget && !turnstileField('cf-turnstile-response')) {
+				setStatus(msg.human || '', true);
+				turnstileWidget.scrollIntoView({ block: 'center' });
 				return;
 			}
 			submit.disabled = true;
@@ -216,7 +235,10 @@
 						website: form.elements.website.value,
 						token: tok.token,
 						ts: tok.ts,
-						page: parseInt(form.getAttribute('data-page'), 10) || 0
+						page: parseInt(form.getAttribute('data-page'), 10) || 0,
+						'cf-turnstile-response': turnstileField('cf-turnstile-response'),
+						cfturnstile_failsafe: turnstileField('cfturnstile_failsafe'),
+						'g-recaptcha-response': turnstileField('g-recaptcha-response')
 					})
 				});
 			}).then(function (r) {
@@ -236,6 +258,10 @@
 				if (res.data && res.data.code === 'bizmax_bad_token') {
 					token = null;
 					tokenPromise = null;
+				}
+				// A Turnstile token is single-use once the server has checked it: ask for a new one.
+				if (res.data && res.data.code !== 'bizmax_invalid') {
+					turnstileReset();
 				}
 				setStatus((res.data && res.data.message) || msg.error || '', true);
 				submit.disabled = false;

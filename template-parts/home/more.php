@@ -81,6 +81,8 @@ $privacy = get_privacy_policy_url();
 						<p class="bz-form__error" id="bz-f-privacy-err" hidden></p>
 					</div>
 
+					<?php bizmax_turnstile_field(); ?>
+
 					<button class="bz-form__submit" type="submit"><?php echo esc_html( $d['form_btn'] ); ?></button>
 					<p class="bz-form__status" role="status" aria-live="polite" data-bz-status></p>
 				</form>

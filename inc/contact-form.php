@@ -170,6 +170,12 @@ function bizmax_contact_submit( WP_REST_Request $request ) {
 		return new WP_Error( 'bizmax_invalid', __( 'נא לתקן את השדות המסומנים.', 'bizmax' ), array( 'status' => 422, 'fields' => $errors ) );
 	}
 
+	// Cloudflare Turnstile (Simple Cloudflare Turnstile plugin), checked only after the fields are valid.
+	$turnstile = bizmax_turnstile_verify( $request );
+	if ( is_wp_error( $turnstile ) ) {
+		return $turnstile;
+	}
+
 	$to = sanitize_email( (string) bizmax_mod( 'bizmax_form_to' ) );
 	if ( ! is_email( $to ) ) {
 		$to = get_option( 'admin_email' );

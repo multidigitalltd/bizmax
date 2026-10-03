@@ -23,6 +23,7 @@ function bizmax_mod_defaults(): array {
 		'bizmax_map_image'     => 0,
 		'bizmax_form_to'       => '',
 		'bizmax_show_whatsapp' => true,
+		'bizmax_turnstile'     => true,
 		'bizmax_a11y_panel'    => true,
 		'bizmax_a11y_side'     => 'right',
 		'bizmax_a11y_page'     => 0,
@@ -147,6 +148,23 @@ function bizmax_customize_register( WP_Customize_Manager $wp_customize ): void {
 			'label'   => __( 'הצגת כפתור וואטסאפ צף', 'bizmax' ),
 			'section' => 'bizmax_contact',
 			'type'    => 'checkbox',
+		)
+	);
+
+	$wp_customize->add_setting(
+		'bizmax_turnstile',
+		array(
+			'default'           => true,
+			'sanitize_callback' => 'rest_sanitize_boolean',
+		)
+	);
+	$wp_customize->add_control(
+		'bizmax_turnstile',
+		array(
+			'label'       => __( 'אימות Cloudflare Turnstile בטופס יצירת קשר', 'bizmax' ),
+			'description' => __( 'פועל כשהתוסף Simple Cloudflare Turnstile פעיל ומוגדרים בו מפתחות. העיצוב, השפה והמראה נקבעים בהגדרות התוסף.', 'bizmax' ),
+			'section'     => 'bizmax_contact',
+			'type'        => 'checkbox',
 		)
 	);
 
