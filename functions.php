@@ -7,7 +7,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'BIZMAX_VERSION', '1.2.3' );
+define( 'BIZMAX_VERSION', '1.2.4' );
 define( 'BIZMAX_DIR', get_template_directory() );
 define( 'BIZMAX_URI', get_template_directory_uri() );
 

@@ -15,6 +15,7 @@ function bizmax_after_switch(): void {
 	// Every step is idempotent: nothing is created twice and existing settings are never overridden.
 	$home_id = bizmax_ensure_home_page();
 	bizmax_ensure_menus( $home_id );
+	update_option( 'bizmax_menus_setup', 2 );
 	bizmax_ensure_a11y_page();
 	bizmax_ensure_privacy_page();
 }
@@ -27,21 +28,9 @@ add_action( 'after_switch_theme', 'bizmax_after_switch' );
  * @return int Page ID.
  */
 function bizmax_ensure_home_page(): int {
-	$existing = get_posts(
-		array(
-			'post_type'              => 'page',
-			'post_status'            => 'any',
-			'posts_per_page'         => 1,
-			'fields'                 => 'ids',
-			'meta_key'               => '_wp_page_template', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
-			'meta_value'             => 'template-home.php', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
-			'no_found_rows'          => true,
-			'update_post_meta_cache' => false,
-			'update_post_term_cache' => false,
-		)
-	);
+	$existing = bizmax_find_home_page();
 	if ( $existing ) {
-		return (int) $existing[0];
+		return $existing;
 	}
 
 	$home_id = wp_insert_post(
@@ -65,6 +54,44 @@ function bizmax_ensure_home_page(): int {
 	}
 	return (int) $home_id;
 }
+
+/**
+ * ID of the page that uses the home template (0 if none). Never creates anything.
+ */
+function bizmax_find_home_page(): int {
+	$existing = get_posts(
+		array(
+			'post_type'              => 'page',
+			'post_status'            => 'any',
+			'posts_per_page'         => 1,
+			'fields'                 => 'ids',
+			'meta_key'               => '_wp_page_template', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+			'meta_value'             => 'template-home.php', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+			'no_found_rows'          => true,
+			'update_post_meta_cache' => false,
+			'update_post_term_cache' => false,
+		)
+	);
+	return $existing ? (int) $existing[0] : 0;
+}
+
+/**
+ * One-time setup on existing installs (runs once, on the first dashboard visit after updating).
+ *
+ * Sites that had their own "תפריט ראשי" before the theme was activated never got the theme's
+ * header menu (the name collided). This creates the design's menus under theme-specific names
+ * and assigns them only to locations that are still empty; it never replaces an assigned menu,
+ * never creates pages, and does not run again (a deleted menu is not re-created).
+ */
+function bizmax_maybe_upgrade_menus(): void {
+	if ( (int) get_option( 'bizmax_menus_setup', 0 ) >= 2 || ! current_user_can( 'edit_theme_options' ) ) {
+		return;
+	}
+	update_option( 'bizmax_menus_setup', 2 );
+	$home_id = bizmax_find_home_page();
+	bizmax_ensure_menus( $home_id && 'publish' === get_post_status( $home_id ) ? $home_id : 0 );
+}
+add_action( 'admin_init', 'bizmax_maybe_upgrade_menus' );
 
 /**
  * Create default menus for unassigned locations.

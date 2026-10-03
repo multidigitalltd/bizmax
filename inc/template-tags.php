@@ -247,7 +247,7 @@ function bizmax_missing_menu_notice(): void {
 	}
 	printf(
 		'<div class="notice notice-warning"><p>%1$s <a href="%2$s">%3$s</a></p></div>',
-		esc_html__( 'בהידר של האתר לא מוצג תפריט, כי לא שויך תפריט למיקום "תפריט ראשי (הידר)".', 'bizmax' ),
+		esc_html__( 'בהידר של האתר לא מוצג תפריט, כי לא שויך תפריט למיקום "תפריט ראשי (הידר)". אפשר לבחור את "ביזמקס – תפריט ראשי" שהתבנית יצרה, או כל תפריט אחר.', 'bizmax' ),
 		esc_url( admin_url( 'nav-menus.php?action=locations' ) ),
 		esc_html__( 'לשיוך תפריט', 'bizmax' )
 	);
