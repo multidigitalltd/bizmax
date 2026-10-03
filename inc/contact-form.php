@@ -1,7 +1,7 @@
 <?php
 /**
  * Contact form: REST endpoints with nonce, honeypot, timing check, rate limiting,
- * full server-side validation and wp_mail delivery.
+ * full server-side validation, storage in the lead center and wp_mail delivery.
  *
  * The nonce is fetched lazily by JS (never baked into cached HTML), so the form
  * keeps working behind LiteSpeed / Cloudflare full-page cache.
@@ -199,7 +199,30 @@ function bizmax_contact_submit( WP_REST_Request $request ) {
 		'Reply-To: ' . $name . ' <' . $email . '>',
 	);
 
+	// Store the lead first, so it is never lost when the mail server fails.
+	$lead_id = bizmax_lead_create(
+		array(
+			'name'       => $name,
+			'email'      => $email,
+			'phone'      => $phone,
+			'form'       => __( 'טופס יצירת קשר (התבנית)', 'bizmax' ),
+			'source_url' => $page_id > 0 ? (string) get_permalink( $page_id ) : (string) $request->get_header( 'referer' ),
+			'source_id'  => $page_id,
+			'fields'     => array(
+				__( 'שם', 'bizmax' )    => $name,
+				__( 'מייל', 'bizmax' )  => $email,
+				__( 'טלפון', 'bizmax' ) => $phone,
+			),
+		)
+	);
+	if ( $lead_id ) {
+		$body .= sprintf( "%s: %s\n", __( 'לניהול הליד', 'bizmax' ), admin_url( 'post.php?post=' . $lead_id . '&action=edit' ) );
+	}
+
 	$sent = wp_mail( $to, sanitize_text_field( $subject ), $body, $headers );
+	if ( $lead_id ) {
+		update_post_meta( $lead_id, '_bz_lead_mail', $sent ? 'sent' : 'failed' );
+	}
 
 	/**
 	 * Fires after a valid contact submission (CRM/webhook integrations hook here).
@@ -209,7 +232,8 @@ function bizmax_contact_submit( WP_REST_Request $request ) {
 	 */
 	do_action( 'bizmax_contact_submitted', compact( 'name', 'email', 'phone' ), $sent );
 
-	if ( ! $sent ) {
+	// A failed notification is only an error when the lead could not be stored either.
+	if ( ! $sent && ! $lead_id ) {
 		return new WP_Error( 'bizmax_mail_failed', __( 'השליחה נכשלה, נסו שוב בעוד רגע.', 'bizmax' ), array( 'status' => 500 ) );
 	}
 
