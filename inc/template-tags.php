@@ -211,41 +211,48 @@ function bizmax_whatsapp_icon(): void {
 /**
  * Print a registered menu (single level, no container).
  *
+ * Nothing is printed when no menu is assigned to the location: listing every page as a
+ * fallback floods the header on real sites. Admins get a dashboard notice instead.
+ *
  * @param string $location   Menu location.
- * @param string $menu_class UL class.
- * @param bool   $fallback   Whether to fall back to a page list when no menu is assigned.
+ * @param string $menu_class Class on the <ul>.
  */
-function bizmax_menu( string $location, string $menu_class, bool $fallback = true ): void {
+function bizmax_menu( string $location, string $menu_class ): void {
+	if ( ! has_nav_menu( $location ) ) {
+		return;
+	}
 	wp_nav_menu(
 		array(
 			'theme_location' => $location,
 			'container'      => false,
 			'menu_class'     => $menu_class,
 			'depth'          => 1,
-			'fallback_cb'    => $fallback ? 'bizmax_menu_fallback' : false,
+			'fallback_cb'    => false,
 			'items_wrap'     => '<ul class="%2$s">%3$s</ul>',
 		)
 	);
 }
 
 /**
- * Menu fallback (no menu assigned): a page list inside the same <ul class> the CSS expects.
- *
- * @param array<string,mixed> $args wp_nav_menu() arguments.
+ * Dashboard notice when the header has no menu (Appearance → Menus → "תפריט ראשי (הידר)").
+ * Shown only on the dashboard, Themes and Menus screens, to users who can manage menus.
  */
-function bizmax_menu_fallback( array $args ): void {
-	$items = wp_list_pages(
-		array(
-			'title_li' => '',
-			'depth'    => 1,
-			'echo'     => false,
-		)
-	);
-	if ( '' === $items ) {
+function bizmax_missing_menu_notice(): void {
+	if ( has_nav_menu( 'primary' ) || ! current_user_can( 'edit_theme_options' ) ) {
 		return;
 	}
-	echo '<ul class="' . esc_attr( (string) $args['menu_class'] ) . '">' . $items . '</ul>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_list_pages() output is escaped by core.
+	$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+	if ( ! $screen || ! in_array( $screen->id, array( 'dashboard', 'themes', 'nav-menus' ), true ) ) {
+		return;
+	}
+	printf(
+		'<div class="notice notice-warning"><p>%1$s <a href="%2$s">%3$s</a></p></div>',
+		esc_html__( 'בהידר של האתר לא מוצג תפריט, כי לא שויך תפריט למיקום "תפריט ראשי (הידר)".', 'bizmax' ),
+		esc_url( admin_url( 'nav-menus.php?action=locations' ) ),
+		esc_html__( 'לשיוך תפריט', 'bizmax' )
+	);
 }
+add_action( 'admin_notices', 'bizmax_missing_menu_notice' );
 
 /**
  * Hebrew month names for the events date chip (independent of the site locale).

@@ -36,7 +36,7 @@ $bz_a11y      = bizmax_a11y_page_url();
 				<?php foreach ( array( 'footer_1', 'footer_2' ) as $bz_loc ) : ?>
 					<?php if ( has_nav_menu( $bz_loc ) ) : ?>
 						<nav class="bz-footer__menu" aria-label="<?php echo esc_attr( 'footer_1' === $bz_loc ? __( 'קישורי פוטר', 'bizmax' ) : __( 'קישורי פוטר נוספים', 'bizmax' ) ); ?>">
-							<?php bizmax_menu( $bz_loc, 'bz-footer__list', false ); ?>
+							<?php bizmax_menu( $bz_loc, 'bz-footer__list' ); ?>
 						</nav>
 					<?php endif; ?>
 				<?php endforeach; ?>

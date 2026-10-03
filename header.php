@@ -29,9 +29,11 @@ if ( bizmax_is_canvas() ) {
 		<button class="bz-burger" type="button" aria-expanded="false" aria-controls="bz-drawer" aria-label="<?php esc_attr_e( 'פתיחת תפריט', 'bizmax' ); ?>" data-bz-drawer-open>
 			<span></span><span></span><span></span>
 		</button>
-		<nav class="bz-nav" aria-label="<?php esc_attr_e( 'ניווט ראשי', 'bizmax' ); ?>">
-			<?php bizmax_menu( 'primary', 'bz-nav__list' ); ?>
-		</nav>
+		<?php if ( has_nav_menu( 'primary' ) ) : ?>
+			<nav class="bz-nav" aria-label="<?php esc_attr_e( 'ניווט ראשי', 'bizmax' ); ?>">
+				<?php bizmax_menu( 'primary', 'bz-nav__list' ); ?>
+			</nav>
+		<?php endif; ?>
 		<div class="bz-header__spacer"></div>
 		<?php bizmax_logo( 'bz-logo' ); ?>
 	</div>
@@ -44,9 +46,12 @@ if ( bizmax_is_canvas() ) {
 			<span class="bz-drawer__title" id="bz-drawer-title"><?php esc_html_e( 'תפריט', 'bizmax' ); ?></span>
 			<button type="button" class="bz-drawer__close" aria-label="<?php esc_attr_e( 'סגירת תפריט', 'bizmax' ); ?>" data-bz-drawer-close><?php bizmax_icon( 'x', 22 ); ?></button>
 		</div>
-		<nav class="bz-drawer__nav" aria-label="<?php esc_attr_e( 'תפריט האתר', 'bizmax' ); ?>">
-			<?php bizmax_menu( has_nav_menu( 'drawer' ) ? 'drawer' : 'primary', 'bz-drawer__list' ); ?>
-		</nav>
+		<?php $bz_drawer_menu = has_nav_menu( 'drawer' ) ? 'drawer' : 'primary'; ?>
+		<?php if ( has_nav_menu( $bz_drawer_menu ) ) : ?>
+			<nav class="bz-drawer__nav" aria-label="<?php esc_attr_e( 'תפריט האתר', 'bizmax' ); ?>">
+				<?php bizmax_menu( $bz_drawer_menu, 'bz-drawer__list' ); ?>
+			</nav>
+		<?php endif; ?>
 		<div class="bz-drawer__contact">
 			<?php $bz_phone = (string) bizmax_mod( 'bizmax_phone' ); ?>
 			<?php if ( '' !== $bz_phone ) : ?>

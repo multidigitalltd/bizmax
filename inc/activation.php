@@ -77,7 +77,7 @@ function bizmax_ensure_menus( int $home_id ): void {
 
 	$menus = array(
 		'primary'  => array(
-			'name'  => __( 'תפריט ראשי', 'bizmax' ),
+			'name'  => __( 'ביזמקס – תפריט ראשי', 'bizmax' ),
 			'items' => array(
 				array( 'המתחם', $home . '#coworking' ),
 				array( 'אודות', $home . '#about' ),
@@ -88,7 +88,7 @@ function bizmax_ensure_menus( int $home_id ): void {
 			),
 		),
 		'footer_1' => array(
-			'name'  => __( 'פוטר – עמודה 1', 'bizmax' ),
+			'name'  => __( 'ביזמקס – פוטר עמודה 1', 'bizmax' ),
 			'items' => array(
 				array( 'מודעות והשראה', $home . '#deschool' ),
 				array( 'הנבטה', $home . '#deschool' ),
@@ -96,7 +96,7 @@ function bizmax_ensure_menus( int $home_id ): void {
 			),
 		),
 		'footer_2' => array(
-			'name'  => __( 'פוטר – עמודה 2', 'bizmax' ),
+			'name'  => __( 'ביזמקס – פוטר עמודה 2', 'bizmax' ),
 			'items' => array(
 				array( 'דה סקול', $home . '#deschool' ),
 				array( 'צמיחה', $home . '#deschool' ),
@@ -106,6 +106,12 @@ function bizmax_ensure_menus( int $home_id ): void {
 
 	foreach ( $menus as $location => $menu ) {
 		if ( ! empty( $locations[ $location ] ) ) {
+			continue;
+		}
+		// A menu with this name already exists (an earlier activation): assign it, don't duplicate.
+		$existing = wp_get_nav_menu_object( $menu['name'] );
+		if ( $existing ) {
+			$locations[ $location ] = (int) $existing->term_id;
 			continue;
 		}
 		$menu_id = wp_create_nav_menu( $menu['name'] );
