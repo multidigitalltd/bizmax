@@ -196,7 +196,7 @@ return array(
 					'title' => array( 'type' => 'text', 'label' => __( 'כותרת', 'bizmax' ), 'default' => 'The School' ),
 					'text'  => array( 'type' => 'text', 'label' => __( 'טקסט', 'bizmax' ), 'default' => 'בית הספר לעסקים של ביזמקס — מעסק קטן לחברה גדולה, יציבה ומעסיקה.' ),
 					'cta'   => array( 'type' => 'text', 'label' => __( 'טקסט קישור', 'bizmax' ), 'default' => 'להכיר את התוכנית' ),
-					'url'   => array( 'type' => 'url', 'label' => __( 'קישור', 'bizmax' ), 'default' => '#deschool' ),
+					'url'   => array( 'type' => 'url', 'label' => __( 'קישור', 'bizmax' ), 'default' => home_url( '/theschool/' ) ),
 				),
 			),
 			'link_2'        => array(
@@ -206,7 +206,7 @@ return array(
 					'title' => array( 'type' => 'text', 'label' => __( 'כותרת', 'bizmax' ), 'default' => 'ביזלאבס' ),
 					'text'  => array( 'type' => 'text', 'label' => __( 'טקסט', 'bizmax' ), 'default' => 'תוכנית האצה ליזמי טכנולוגיה — פלטפורמה מלאה לאורך כל צינור היזמות.' ),
 					'cta'   => array( 'type' => 'text', 'label' => __( 'טקסט קישור', 'bizmax' ), 'default' => 'להכיר את התוכנית' ),
-					'url'   => array( 'type' => 'url', 'label' => __( 'קישור', 'bizmax' ), 'default' => '#bizlabs' ),
+					'url'   => array( 'type' => 'url', 'label' => __( 'קישור', 'bizmax' ), 'default' => home_url( '/bizlabs-new/' ) ),
 				),
 			),
 			'closing'       => array( 'type' => 'textarea', 'label' => __( 'פסקת סיום (ממורכזת)', 'bizmax' ), 'default' => 'באמצעות ידע מקצועי, ליווי אישי, קשרים עסקיים, נטוורקינג, קהילה תומכת ונגישות למשקיעים ולמובילי תעשייה, ביזמקס פועל לצמיחתו של דור חדש של יזמים, בעלי עסקים וחברות טכנולוגיה מהחברה החרדית.' ),

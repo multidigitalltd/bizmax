@@ -211,3 +211,40 @@ function bizmax_home_get( int $post_id ): array {
 function bizmax_home_save( int $post_id, array $input ): void {
 	update_post_meta( $post_id, BIZMAX_HOME_META, bizmax_home_sanitize( $input ) );
 }
+
+/**
+ * One-time content updates for pages saved with an earlier theme version.
+ *
+ * A saved value always wins over the schema default, so when a default changes, pages that
+ * were saved with the old default keep it. Each step below replaces a value only while it
+ * still equals the old default; anything an editor changed is left untouched. Runs once.
+ */
+function bizmax_maybe_upgrade_home_content(): void {
+	if ( (int) get_option( 'bizmax_content_setup', 0 ) >= 2 ) {
+		return;
+	}
+	update_option( 'bizmax_content_setup', 2 );
+
+	$page_id = bizmax_find_home_page();
+	$saved   = $page_id ? get_post_meta( $page_id, BIZMAX_HOME_META, true ) : null;
+	if ( ! is_array( $saved ) ) {
+		return; // Nothing saved yet: the new defaults already apply.
+	}
+
+	// 1.3.1: the About cards link to the programme pages instead of in-page sections.
+	$changes = array(
+		'link_1' => array( '#deschool', home_url( '/theschool/' ) ),
+		'link_2' => array( '#bizlabs', home_url( '/bizlabs-new/' ) ),
+	);
+	$changed = false;
+	foreach ( $changes as $card => [ $old, $new ] ) {
+		if ( isset( $saved['about'][ $card ]['url'] ) && $old === $saved['about'][ $card ]['url'] ) {
+			$saved['about'][ $card ]['url'] = esc_url_raw( $new );
+			$changed                         = true;
+		}
+	}
+	if ( $changed ) {
+		update_post_meta( $page_id, BIZMAX_HOME_META, $saved );
+	}
+}
+add_action( 'init', 'bizmax_maybe_upgrade_home_content', 20 );
