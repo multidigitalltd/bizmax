@@ -7,7 +7,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'BIZMAX_VERSION', '1.0.0' );
+define( 'BIZMAX_VERSION', '1.1.0' );
 define( 'BIZMAX_DIR', get_template_directory() );
 define( 'BIZMAX_URI', get_template_directory_uri() );
 
@@ -20,6 +20,7 @@ require BIZMAX_DIR . '/inc/contact-form.php';
 require BIZMAX_DIR . '/inc/elementor.php';
 require BIZMAX_DIR . '/inc/schema-org.php';
 require BIZMAX_DIR . '/inc/activation.php';
+require BIZMAX_DIR . '/inc/a11y.php';
 
 if ( is_admin() ) {
 	require BIZMAX_DIR . '/inc/home-admin.php';

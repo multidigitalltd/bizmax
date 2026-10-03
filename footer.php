@@ -7,6 +7,13 @@
 
 defined( 'ABSPATH' ) || exit;
 
+// Pages set to Elementor Canvas never show the theme footer (see bizmax_is_canvas()).
+if ( bizmax_is_canvas() ) {
+	wp_footer();
+	echo "</body>\n</html>\n";
+	return;
+}
+
 $bz_phone     = (string) bizmax_mod( 'bizmax_phone' );
 $bz_email     = (string) bizmax_mod( 'bizmax_email' );
 $bz_address   = (string) bizmax_mod( 'bizmax_address' );

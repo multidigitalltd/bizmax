@@ -139,7 +139,7 @@ function bizmax_ensure_a11y_page(): void {
 	}
 	$content  = '<h2>הצהרת נגישות</h2>';
 	$content .= '<p>אנו רואים חשיבות רבה במתן שירות שוויוני לכלל הגולשים ובשיפור הנגישות של האתר לאנשים עם מוגבלות, בהתאם לתקנות שוויון זכויות לאנשים עם מוגבלות (התאמות נגישות לשירות), התשע"ג-2013, ולתקן הישראלי ת"י 5568 המבוסס על הנחיות WCAG 2.2 ברמה AA.</p>';
-	$content .= '<h3>התאמות הנגישות באתר</h3><ul><li>ניווט מלא באמצעות מקלדת וקישור "דלג לתוכן".</li><li>תמיכה בקוראי מסך: מבנה סמנטי, כותרות היררכיות, טקסטים חלופיים לתמונות ותוויות לשדות טפסים.</li><li>ניגודיות צבעים תקנית ואפשרות להגדלת הטקסט עד 200%.</li><li>כיבוד העדפת "הפחתת תנועה" של מערכת ההפעלה.</li></ul>';
+	$content .= '<h3>התאמות הנגישות באתר</h3><ul><li>ניווט מלא באמצעות מקלדת וקישור "דלג לתוכן".</li><li>תמיכה בקוראי מסך: מבנה סמנטי, כותרות היררכיות, טקסטים חלופיים לתמונות ותוויות לשדות טפסים.</li><li>ניגודיות צבעים תקנית ואפשרות להגדלת הטקסט עד 200%.</li><li>כיבוד העדפת "הפחתת תנועה" של מערכת ההפעלה.</li><li>תפריט נגישות זמין בכל עמוד: הגדלת טקסט, ניגודיות גבוהה, רקע בהיר, גווני אפור, הדגשת קישורים וכותרות, גופן קריא, ריווח טקסט, עצירת אנימציות, סמן גדול והדגשת מיקוד מקלדת.</li></ul>';
 	$content .= '<h3>דרכי פנייה בנושאי נגישות</h3><p>רכז/ת הנגישות: [שם]<br>טלפון: [טלפון]<br>דוא"ל: [מייל]</p>';
 	$content .= '<p>ההצהרה עודכנה בתאריך: [תאריך]</p>';
 
@@ -176,9 +176,15 @@ function bizmax_ensure_privacy_page(): void {
 }
 
 /**
- * The accessibility statement page (published) for the footer link, if any.
+ * The published accessibility statement page URL (footer and accessibility panel), if any.
+ * Uses the page chosen in the Customizer, falling back to the page created on activation.
  */
 function bizmax_a11y_page_url(): string {
-	$page = get_page_by_path( 'accessibility-statement' );
-	return ( $page && 'publish' === $page->post_status ) ? (string) get_permalink( $page ) : '';
+	static $url = null;
+	if ( null === $url ) {
+		$id   = absint( bizmax_mod( 'bizmax_a11y_page' ) );
+		$page = $id ? get_post( $id ) : get_page_by_path( 'accessibility-statement' );
+		$url  = ( $page instanceof WP_Post && 'page' === $page->post_type && 'publish' === $page->post_status ) ? (string) get_permalink( $page ) : '';
+	}
+	return $url;
 }

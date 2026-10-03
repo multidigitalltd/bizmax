@@ -15,8 +15,14 @@ defined( 'ABSPATH' ) || exit;
 <?php wp_head(); ?>
 </head>
 <body <?php body_class(); ?>>
-<?php wp_body_open(); ?>
-<a class="skip-link screen-reader-text" href="#main"><?php esc_html_e( 'דלג לתוכן המרכזי', 'bizmax' ); ?></a>
+<?php
+wp_body_open(); // Prints the skip link and the accessibility panel (see inc/setup.php, inc/a11y.php).
+
+// Pages set to Elementor Canvas never show the theme header (see bizmax_is_canvas()).
+if ( bizmax_is_canvas() ) {
+	return;
+}
+?>
 
 <header class="bz-header" id="masthead">
 	<div class="bz-wrap bz-header__inner">

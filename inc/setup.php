@@ -122,3 +122,15 @@ function bizmax_menu_aria_current( array $atts, WP_Post $item ): array {
 	return $atts;
 }
 add_filter( 'nav_menu_link_attributes', 'bizmax_menu_aria_current', 10, 2 );
+
+/**
+ * "Skip to content" link: the first focusable element on every page that has the theme
+ * header and a #main landmark. Elementor Canvas pages have neither, so it is omitted there.
+ */
+function bizmax_skip_link(): void {
+	if ( bizmax_is_canvas() ) {
+		return;
+	}
+	printf( '<a class="skip-link screen-reader-text" href="#main">%s</a>' . "\n", esc_html__( 'דלג לתוכן המרכזי', 'bizmax' ) );
+}
+add_action( 'wp_body_open', 'bizmax_skip_link', 5 );

@@ -23,6 +23,9 @@ function bizmax_mod_defaults(): array {
 		'bizmax_map_image'     => 0,
 		'bizmax_form_to'       => '',
 		'bizmax_show_whatsapp' => true,
+		'bizmax_a11y_panel'    => true,
+		'bizmax_a11y_side'     => 'right',
+		'bizmax_a11y_page'     => 0,
 	);
 }
 
@@ -146,6 +149,86 @@ function bizmax_customize_register( WP_Customize_Manager $wp_customize ): void {
 			'type'    => 'checkbox',
 		)
 	);
+
+	bizmax_customize_a11y( $wp_customize );
+}
+
+/**
+ * Accessibility panel settings.
+ *
+ * @param WP_Customize_Manager $wp_customize Manager.
+ */
+function bizmax_customize_a11y( WP_Customize_Manager $wp_customize ): void {
+	$wp_customize->add_section(
+		'bizmax_a11y',
+		array(
+			'title'    => __( 'ביזמקס – נגישות', 'bizmax' ),
+			'priority' => 31,
+		)
+	);
+
+	$wp_customize->add_setting(
+		'bizmax_a11y_panel',
+		array(
+			'default'           => true,
+			'sanitize_callback' => 'rest_sanitize_boolean',
+		)
+	);
+	$wp_customize->add_control(
+		'bizmax_a11y_panel',
+		array(
+			'label'       => __( 'הצגת כפתור ותפריט נגישות', 'bizmax' ),
+			'description' => __( 'כפתור צף בכל עמודי האתר, כולל עמודי אלמנטור Canvas.', 'bizmax' ),
+			'section'     => 'bizmax_a11y',
+			'type'        => 'checkbox',
+		)
+	);
+
+	$wp_customize->add_setting(
+		'bizmax_a11y_side',
+		array(
+			'default'           => 'right',
+			'sanitize_callback' => 'bizmax_sanitize_side',
+		)
+	);
+	$wp_customize->add_control(
+		'bizmax_a11y_side',
+		array(
+			'label'   => __( 'מיקום הכפתור', 'bizmax' ),
+			'section' => 'bizmax_a11y',
+			'type'    => 'radio',
+			'choices' => array(
+				'right' => __( 'ימין למטה', 'bizmax' ),
+				'left'  => __( 'שמאל למטה (מעל כפתור הוואטסאפ)', 'bizmax' ),
+			),
+		)
+	);
+
+	$wp_customize->add_setting(
+		'bizmax_a11y_page',
+		array(
+			'default'           => 0,
+			'sanitize_callback' => 'absint',
+		)
+	);
+	$wp_customize->add_control(
+		'bizmax_a11y_page',
+		array(
+			'label'       => __( 'עמוד הצהרת הנגישות', 'bizmax' ),
+			'description' => __( 'הקישור מוצג בתפריט הנגישות ובפוטר. אם לא נבחר עמוד, ייעשה שימוש בעמוד "הצהרת נגישות" שנוצר בהפעלת התבנית, לאחר שיפורסם.', 'bizmax' ),
+			'section'     => 'bizmax_a11y',
+			'type'        => 'dropdown-pages',
+		)
+	);
+}
+
+/**
+ * Sanitize a physical side choice.
+ *
+ * @param string $side Raw value.
+ */
+function bizmax_sanitize_side( string $side ): string {
+	return 'left' === $side ? 'left' : 'right';
 }
 add_action( 'customize_register', 'bizmax_customize_register' );
 

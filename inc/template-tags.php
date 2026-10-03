@@ -176,6 +176,20 @@ function bizmax_icon( string $name, int $size = 17 ): void {
 		'mail'           => '<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>',
 		'map-pin'        => '<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>',
 		'x'              => '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+		'plus'           => '<path d="M5 12h14"/><path d="M12 5v14"/>',
+		'minus'          => '<path d="M5 12h14"/>',
+		'check'          => '<path d="M20 6 9 17l-5-5"/>',
+		'rotate-ccw'     => '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>',
+		'a11y-contrast'  => '<circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20z" fill="currentColor"/>',
+		'a11y-light'     => '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>',
+		'a11y-gray'      => '<path d="M12 2.7 17.7 8.4a8 8 0 1 1-11.3 0z"/><path d="M12 2.7V21" />',
+		'a11y-links'     => '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
+		'a11y-headings'  => '<path d="M6 4v16M18 4v16M6 12h12"/>',
+		'a11y-font'      => '<path d="M4 7V4h16v3"/><path d="M9 20h6"/><path d="M12 4v16"/>',
+		'a11y-spacing'   => '<path d="M21 5H3M21 12H3M21 19H3"/>',
+		'a11y-still'     => '<circle cx="12" cy="12" r="10"/><path d="M10 15V9M14 15V9"/>',
+		'a11y-cursor'    => '<path d="m3 3 7.07 16.97 2.51-7.39 7.39-2.51z"/><path d="m13 13 6 6"/>',
+		'a11y-focus'     => '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
 	);
 	if ( ! isset( $paths[ $name ] ) ) {
 		return;

@@ -2,7 +2,7 @@
 (function () {
 	'use strict';
 
-	var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+	var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches || document.documentElement.classList.contains('bz-a11y-still');
 	var cfg = window.bizmaxHome || { restUrl: '/wp-json/bizmax/v1/', messages: {} };
 	var msg = cfg.messages || {};
 
