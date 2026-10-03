@@ -79,7 +79,7 @@ function bizmax_placeholders(): array {
 		'logo-jda'                => array( 167, 94, 'webp' ),
 		'logo-jerusalem-heritage' => array( 279, 181, 'png' ),
 		'map-placeholder'         => array( 500, 249, 'webp' ),
-		'logo'                    => array( 400, 400, 'png' ),
+		'logo'                    => array( 329, 108, 'png' ),
 	);
 }
 

@@ -192,7 +192,7 @@ html.js .rv.rv-in{opacity:1;transform:none}
 /* ---- More + contact ---- */
 .bz-main>.bz-more{padding:56px var(--bz-gutter) 0;border-top:2px solid var(--bz-border-2)}
 .bz-more__title{margin-bottom:44px}
-.bz-more__row{display:flex;gap:34px;align-items:stretch;justify-content:space-between}
+.bz-more__row{display:flex;gap:clamp(20px,2.4vw,34px);align-items:stretch;justify-content:space-between}
 .bz-pill{width:158px;min-height:330px;border-radius:999px;display:flex;flex-direction:column;align-items:center;transition:transform .3s ease;flex:none;padding:44px 20px 34px;gap:22px}
 .bz-pill:hover,.bz-pill:focus-visible{transform:translateY(-8px)}
 .bz-pill__text{color:#fff;font-weight:700;font-size:17px;line-height:1.4;text-align:center}
@@ -236,10 +236,11 @@ html.js .rv.rv-in{opacity:1;transform:none}
 /* ---- Responsive ---- */
 @media (max-width:1380px){
 	.bz-feature__frame{width:520px}
+}
+/* The four capsules and the form share one row until it no longer fits. */
+@media (max-width:1180px){
 	.bz-more__row{flex-wrap:wrap;justify-content:center}
 	.bz-form{width:100%;max-width:520px}
-}
-@media (max-width:1180px){
 	.bz-hero__cluster{width:420px;height:528px}
 	.bz-hero__canvas{transform:scale(.6)}
 	.bz-hero__title{font-size:54px}
