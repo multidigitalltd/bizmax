@@ -22,7 +22,7 @@ $feature_row = static function ( string $heading, string $sub, string $text, str
 			'default' => $flower,
 			'options' => array( 'blue' => __( 'כחול', 'bizmax' ), 'orange' => __( 'כתום', 'bizmax' ), 'green' => __( 'ירוק', 'bizmax' ) ),
 		),
-		'subheading' => array( 'type' => 'text', 'label' => __( 'כותרת משנה (H3)', 'bizmax' ), 'default' => $sub ),
+		'subheading' => array( 'type' => 'textarea', 'label' => __( 'כותרת משנה (H3; מעבר שורה נשמר)', 'bizmax' ), 'default' => $sub, 'rows' => 2 ),
 		'text'      => array( 'type' => 'textarea', 'label' => __( 'פסקה', 'bizmax' ), 'default' => $text ),
 		'cta_text'  => array( 'type' => 'text', 'label' => __( 'טקסט כפתור', 'bizmax' ), 'default' => $cta ),
 		'cta_url'   => array( 'type' => 'url', 'label' => __( 'קישור כפתור', 'bizmax' ), 'default' => '#contact' ),

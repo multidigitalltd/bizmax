@@ -2,7 +2,7 @@
 /**
  * Front-end weight trimming for pages the theme fully controls.
  *
- * The home template is rendered entirely by the theme, so plugin assets that sites load on every
+ * The home and BizLabs templates are rendered entirely by the theme, so plugin assets that sites load on every
  * page (WooCommerce, JetEngine, booking, payment, smooth-scroll, Elementor-form helpers) do
  * nothing there except cost bandwidth and main-thread time. They are removed on that template
  * only; every other page (Elementor, WooCommerce, DeSchool) keeps whatever its plugins load.
@@ -30,6 +30,7 @@ function bizmax_home_unused_asset_patterns(): array {
 		'/plugins/woocommerce/assets/js/js-cookie/',
 		'/plugins/jet-engine/assets/css/frontend',
 		'/plugins/jet-appointments-booking/assets/css/public/',
+		'/plugins/jetformbuilder/',
 		'/plugins/woocommerce-icredit',
 		'/plugins/mousewheel-smooth-scroll/',
 		'/uploads/wpmss/',
@@ -50,7 +51,7 @@ function bizmax_home_unused_asset_patterns(): array {
  * Dequeue unused plugin styles and scripts on the home template.
  */
 function bizmax_home_asset_diet(): void {
-	if ( ! bizmax_is_home_template() ) {
+	if ( ! bizmax_is_theme_template() ) {
 		return;
 	}
 	$patterns = bizmax_home_unused_asset_patterns();
@@ -94,7 +95,7 @@ add_action( 'wp_print_footer_scripts', 'bizmax_home_asset_diet', 1 );
  * @return array<int,string|array<string,string>>
  */
 function bizmax_resource_hints( array $urls, string $relation_type ): array {
-	if ( 'preconnect' === $relation_type && bizmax_is_home_template() && function_exists( 'bizmax_turnstile_enabled' ) && bizmax_turnstile_enabled() ) {
+	if ( 'preconnect' === $relation_type && bizmax_is_theme_template() && function_exists( 'bizmax_turnstile_enabled' ) && bizmax_turnstile_enabled() ) {
 		$urls[] = array(
 			'href'        => 'https://challenges.cloudflare.com',
 			'crossorigin' => 'anonymous',

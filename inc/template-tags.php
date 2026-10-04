@@ -21,6 +21,8 @@ function bizmax_flower( string $color = 'blue', int $size = 34 ): void {
 		'blue'   => array( '#1B3764', '#2E4F8F' ),
 		'orange' => array( '#F6A81C', '#F7C948' ),
 		'green'  => array( '#1e7a4f', '#4fbf8a' ),
+		'mint'   => array( '#4fbf8a', '#1e7a4f' ),
+		'bright' => array( '#2fd68a', '#2fd68a' ),
 	);
 	$pair  = $stops[ $color ] ?? $stops['blue'];
 	$id    = 'bz-fg-' . $counter;
@@ -67,19 +69,38 @@ function bizmax_cta( string $text, string $url, string $style = 'secondary', str
  */
 function bizmax_placeholders(): array {
 	return array(
-		'photo-office'            => array( 1100, 619, 'webp' ),
-		'space-1'                 => array( 900, 827, 'webp' ),
-		'space-2'                 => array( 900, 827, 'webp' ),
-		'space-3'                 => array( 900, 827, 'webp' ),
-		'space-4'                 => array( 900, 827, 'webp' ),
-		'portrait-a'              => array( 240, 360, 'webp' ),
-		'portrait-b'              => array( 360, 253, 'webp' ),
-		'logo-kemach'             => array( 294, 195, 'png' ),
-		'logo-achim'              => array( 600, 177, 'webp' ),
-		'logo-jda'                => array( 167, 94, 'webp' ),
-		'logo-jerusalem-heritage' => array( 279, 181, 'png' ),
-		'map-placeholder'         => array( 500, 249, 'webp' ),
-		'logo'                    => array( 329, 108, 'png' ),
+		'photo-office'                => array( 1100, 619, 'webp' ),
+		'space-1'                     => array( 900, 827, 'webp' ),
+		'space-2'                     => array( 900, 827, 'webp' ),
+		'space-3'                     => array( 900, 827, 'webp' ),
+		'space-4'                     => array( 900, 827, 'webp' ),
+		'portrait-a'                  => array( 240, 360, 'webp' ),
+		'portrait-b'                  => array( 360, 253, 'webp' ),
+		'logo-kemach'                 => array( 294, 195, 'png' ),
+		'logo-achim'                  => array( 600, 177, 'webp' ),
+		'logo-jda'                    => array( 167, 94, 'webp' ),
+		'logo-jerusalem-heritage'     => array( 279, 181, 'png' ),
+		'map-placeholder'             => array( 500, 249, 'webp' ),
+		'logo'                        => array( 329, 108, 'png' ),
+		'bizlabs/about'               => array( 797, 477, 'webp' ),
+		'bizlabs/hero'                => array( 1400, 788, 'webp' ),
+		'bizlabs/logo-bizlabs'        => array( 155, 138, 'webp' ),
+		'bizlabs/partner-aws'         => array( 275, 183, 'webp' ),
+		'bizlabs/partner-fiverr'      => array( 400, 201, 'webp' ),
+		'bizlabs/partner-google'      => array( 400, 196, 'webp' ),
+		'bizlabs/partner-iati'        => array( 176, 146, 'webp' ),
+		'bizlabs/partner-jvp'         => array( 400, 167, 'webp' ),
+		'bizlabs/partner-kpmg'        => array( 400, 400, 'webp' ),
+		'bizlabs/partner-microsoft'   => array( 400, 151, 'webp' ),
+		'bizlabs/partner-poalim'      => array( 200, 200, 'webp' ),
+		'bizlabs/partner-research'    => array( 375, 135, 'webp' ),
+		'bizlabs/partner-yigal-arnon' => array( 400, 267, 'webp' ),
+		'bizlabs/story-botanohealth'  => array( 300, 171, 'webp' ),
+		'bizlabs/story-bsq'           => array( 300, 115, 'webp' ),
+		'bizlabs/story-healables'     => array( 300, 128, 'webp' ),
+		'bizlabs/story-mikvatech'     => array( 300, 50, 'webp' ),
+		'bizlabs/story-novotalk'      => array( 300, 97, 'webp' ),
+		'bizlabs/story-selfcad'       => array( 300, 186, 'webp' ),
 	);
 }
 
@@ -136,9 +157,29 @@ function bizmax_logo( string $class = 'bz-logo' ): void {
 	echo '<a class="' . esc_attr( $class ) . '" href="' . esc_url( home_url( '/' ) ) . '" rel="home">';
 	if ( has_custom_logo() ) {
 		$logo_id = (int) get_theme_mod( 'custom_logo' );
-		echo wp_get_attachment_image( $logo_id, 'medium', false, array( 'class' => 'bz-logo__img', 'alt' => $name, 'loading' => 'eager', 'fetchpriority' => 'high' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- core-escaped.
+		echo wp_get_attachment_image(
+			$logo_id,
+			'medium',
+			false,
+			array(
+				'class'         => 'bz-logo__img',
+				'alt'           => $name,
+				'loading'       => 'eager',
+				'fetchpriority' => 'high',
+			)
+		); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- core-escaped.
 	} else {
-		echo bizmax_image( 0, 'medium', 'logo', array( 'class' => 'bz-logo__img', 'alt' => $name, 'fetchpriority' => 'high' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in helper.
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in helper.
+		echo bizmax_image(
+			0,
+			'medium',
+			'logo',
+			array(
+				'class'         => 'bz-logo__img',
+				'alt'           => $name,
+				'fetchpriority' => 'high',
+			)
+		);
 	}
 	echo '</a>';
 }
@@ -264,11 +305,40 @@ function bizmax_hebrew_date_parts( string $date ): array {
 	$months = array( 'ינואר', 'פברואר', 'מרץ', 'אפריל', 'מאי', 'יוני', 'יולי', 'אוגוסט', 'ספטמבר', 'אוקטובר', 'נובמבר', 'דצמבר' );
 	$ts     = strtotime( $date );
 	if ( false === $ts ) {
-		return array( 'day' => '', 'month' => '', 'iso' => '' );
+		return array(
+			'day'   => '',
+			'month' => '',
+			'iso'   => '',
+		);
 	}
 	return array(
 		'day'   => gmdate( 'j', $ts ),
 		'month' => $months[ (int) gmdate( 'n', $ts ) - 1 ],
 		'iso'   => gmdate( 'Y-m-d', $ts ),
 	);
+}
+
+/**
+ * Print an in-page navigation built from page content (label, url, active).
+ *
+ * @param array<int,array<string,mixed>> $links     Links.
+ * @param string                         $ul_class  List class.
+ * @param string                         $label     Accessible name of the navigation.
+ * @param string                         $nav_class Nav class.
+ */
+function bizmax_page_nav( array $links, string $ul_class, string $label, string $nav_class = 'bz-nav' ): void {
+	$links = array_filter( $links, static fn( $l ) => '' !== trim( (string) ( $l['text'] ?? '' ) ) && '' !== trim( (string) ( $l['url'] ?? '' ) ) );
+	if ( ! $links ) {
+		return;
+	}
+	echo '<nav class="' . esc_attr( $nav_class ) . '" aria-label="' . esc_attr( $label ) . '"><ul class="' . esc_attr( $ul_class ) . '">';
+	foreach ( $links as $link ) {
+		printf(
+			'<li%1$s><a href="%2$s">%3$s</a></li>',
+			! empty( $link['active'] ) ? ' class="is-active"' : '',
+			esc_url( (string) $link['url'] ),
+			esc_html( (string) $link['text'] )
+		);
+	}
+	echo '</ul></nav>';
 }

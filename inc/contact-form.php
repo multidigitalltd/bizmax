@@ -181,11 +181,17 @@ function bizmax_contact_submit( WP_REST_Request $request ) {
 		$to = get_option( 'admin_email' );
 	}
 
-	$subject = 'פנייה חדשה מאתר ביזמקס';
-	$page_id = (int) $request->get_param( 'page' );
-	if ( $page_id > 0 ) {
+	$subject   = 'פנייה חדשה מאתר ביזמקס';
+	$form_name = __( 'טופס יצירת קשר (התבנית)', 'bizmax' );
+	$page_id   = (int) $request->get_param( 'page' );
+	$page_type = $page_id > 0 ? bizmax_page_type_for( $page_id ) : '';
+	if ( 'home' === $page_type ) {
 		$content = bizmax_home_get( $page_id );
-		$subject = $content['more']['form_subject'] ?: $subject;
+		$subject = '' !== trim( (string) $content['more']['form_subject'] ) ? $content['more']['form_subject'] : $subject;
+	} elseif ( 'bizlabs' === $page_type ) {
+		$content   = bizmax_page_get( 'bizlabs', $page_id );
+		$subject   = '' !== trim( (string) $content['form']['subject'] ) ? $content['form']['subject'] : $subject;
+		$form_name = __( 'טופס הרשמה – ביזלאבס', 'bizmax' );
 	}
 
 	$body  = sprintf( "%s: %s\n", __( 'שם', 'bizmax' ), $name );
@@ -205,7 +211,7 @@ function bizmax_contact_submit( WP_REST_Request $request ) {
 			'name'       => $name,
 			'email'      => $email,
 			'phone'      => $phone,
-			'form'       => __( 'טופס יצירת קשר (התבנית)', 'bizmax' ),
+			'form'       => $form_name,
 			'source_url' => $page_id > 0 ? (string) get_permalink( $page_id ) : (string) $request->get_header( 'referer' ),
 			'source_id'  => $page_id,
 			'fields'     => array(

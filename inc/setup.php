@@ -86,6 +86,9 @@ function bizmax_body_class( array $classes ): array {
 	if ( bizmax_is_home_template() ) {
 		$classes[] = 'bz-home';
 	}
+	if ( bizmax_is_bizlabs_template() ) {
+		$classes[] = 'bz-bizlabs';
+	}
 	return $classes;
 }
 add_filter( 'body_class', 'bizmax_body_class' );
@@ -95,6 +98,20 @@ add_filter( 'body_class', 'bizmax_body_class' );
  */
 function bizmax_is_home_template(): bool {
 	return is_page_template( 'template-home.php' );
+}
+
+/**
+ * Whether the current request renders the BizLabs template.
+ */
+function bizmax_is_bizlabs_template(): bool {
+	return is_page_template( 'template-bizlabs.php' );
+}
+
+/**
+ * Whether the current page is rendered entirely by the theme (home or BizLabs template).
+ */
+function bizmax_is_theme_template(): bool {
+	return bizmax_is_home_template() || bizmax_is_bizlabs_template();
 }
 
 /**

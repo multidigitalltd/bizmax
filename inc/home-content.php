@@ -1,9 +1,11 @@
 <?php
 /**
- * Home page content: schema access, defaults, sanitization and retrieval.
+ * Page content for the theme's own templates: schema access, defaults, sanitization and retrieval.
  *
- * All content lives in ONE post meta row (`_bizmax_home`) on the page that
- * uses template-home.php, so rendering costs a single (already cached) meta read.
+ * Each template-driven page (the home page, the BizLabs page) keeps ALL its content in ONE post
+ * meta row on the page itself, so rendering costs a single (already cached) meta read. A schema
+ * file per template defines sections → fields → defaults; the same schema drives the admin form,
+ * the sanitizer and the templates.
  *
  * @package Bizmax
  */
@@ -13,16 +15,68 @@ defined( 'ABSPATH' ) || exit;
 const BIZMAX_HOME_META = '_bizmax_home';
 
 /**
- * The home schema (loaded once per request).
+ * Template-driven page types.
+ *
+ * @return array<string,array{template:string,schema:string,meta:string,field:string,label:string,template_label:string}>
+ */
+function bizmax_page_types(): array {
+	return array(
+		'home'    => array(
+			'template'       => 'template-home.php',
+			'schema'         => '/inc/home-schema.php',
+			'meta'           => BIZMAX_HOME_META,
+			'field'          => 'bizmax_home',
+			'label'          => __( 'תוכן דף הבית', 'bizmax' ),
+			'template_label' => __( 'דף הבית – ביזמקס', 'bizmax' ),
+		),
+		'bizlabs' => array(
+			'template'       => 'template-bizlabs.php',
+			'schema'         => '/inc/bizlabs-schema.php',
+			'meta'           => '_bizmax_bizlabs',
+			'field'          => 'bizmax_bizlabs',
+			'label'          => __( 'תוכן עמוד ביזלאבס', 'bizmax' ),
+			'template_label' => __( 'ביזלאבס – ביזמקס', 'bizmax' ),
+		),
+	);
+}
+
+/**
+ * The page type a page uses ('' when it uses none of the theme's content templates).
+ *
+ * @param int $post_id Page ID.
+ */
+function bizmax_page_type_for( int $post_id ): string {
+	$template = (string) get_page_template_slug( $post_id );
+	foreach ( bizmax_page_types() as $type => $def ) {
+		if ( $def['template'] === $template ) {
+			return $type;
+		}
+	}
+	return '';
+}
+
+/**
+ * A page type's schema (loaded once per request).
+ *
+ * @param string $type Page type.
+ * @return array<string,array<string,mixed>>
+ */
+function bizmax_page_schema( string $type ): array {
+	static $schemas = array();
+	if ( ! isset( $schemas[ $type ] ) ) {
+		$types            = bizmax_page_types();
+		$schemas[ $type ] = isset( $types[ $type ] ) ? (array) require BIZMAX_DIR . $types[ $type ]['schema'] : array();
+	}
+	return $schemas[ $type ];
+}
+
+/**
+ * The home schema.
  *
  * @return array<string,array<string,mixed>>
  */
 function bizmax_home_schema(): array {
-	static $schema = null;
-	if ( null === $schema ) {
-		$schema = require BIZMAX_DIR . '/inc/home-schema.php';
-	}
-	return $schema;
+	return bizmax_page_schema( 'home' );
 }
 
 /**
@@ -87,6 +141,14 @@ function bizmax_home_sanitize_field( $value, array $field ) {
 		case 'image':
 		case 'number':
 			return absint( $value );
+		case 'decimal':
+			return is_numeric( $value ) ? round( max( 0, (float) $value ), 2 ) : 0;
+		case 'color':
+			return (string) ( sanitize_hex_color( (string) $value ) ?? '' );
+		case 'asset':
+			// A bundled default image (see bizmax_placeholders()); anything else is dropped.
+			$value = (string) $value;
+			return isset( bizmax_placeholders()[ $value ] ) ? $value : '';
 		case 'checkbox':
 			return rest_sanitize_boolean( $value );
 		case 'select':
@@ -136,17 +198,28 @@ function bizmax_home_sanitize_fields( array $input, array $fields ): array {
 }
 
 /**
- * Sanitize a full submission (all sections).
+ * Sanitize a full submission (all sections) for a page type.
+ *
+ * @param string              $type  Page type.
+ * @param array<string,mixed> $input Raw POST array.
+ * @return array<string,array<string,mixed>>
+ */
+function bizmax_page_sanitize( string $type, array $input ): array {
+	$out = array();
+	foreach ( bizmax_page_schema( $type ) as $section => $def ) {
+		$out[ $section ] = bizmax_home_sanitize_fields( is_array( $input[ $section ] ?? null ) ? $input[ $section ] : array(), $def['fields'] );
+	}
+	return $out;
+}
+
+/**
+ * Sanitize a full home submission.
  *
  * @param array<string,mixed> $input Raw POST array.
  * @return array<string,array<string,mixed>>
  */
 function bizmax_home_sanitize( array $input ): array {
-	$out = array();
-	foreach ( bizmax_home_schema() as $section => $def ) {
-		$out[ $section ] = bizmax_home_sanitize_fields( is_array( $input[ $section ] ?? null ) ? $input[ $section ] : array(), $def['fields'] );
-	}
-	return $out;
+	return bizmax_page_sanitize( 'home', $input );
 }
 
 /**
@@ -179,37 +252,73 @@ function bizmax_home_merge_defaults( array $saved, array $fields ): array {
 }
 
 /**
- * Get the complete home content for a page (saved values over defaults).
+ * Get the complete content of a template-driven page (saved values over defaults).
+ *
+ * @param string $type    Page type.
+ * @param int    $post_id Page ID.
+ * @return array<string,array<string,mixed>>
+ */
+function bizmax_page_get( string $type, int $post_id ): array {
+	static $cache = array();
+	$key          = $type . ':' . $post_id;
+	if ( isset( $cache[ $key ] ) && ! is_admin() ) {
+		return $cache[ $key ]; // The header and the template read the same page content.
+	}
+	$types = bizmax_page_types();
+	if ( ! isset( $types[ $type ] ) ) {
+		return array();
+	}
+	$saved = $post_id > 0 ? get_post_meta( $post_id, $types[ $type ]['meta'], true ) : array();
+	$saved = is_array( $saved ) ? $saved : array();
+
+	$content = array();
+	foreach ( bizmax_page_schema( $type ) as $section => $def ) {
+		$content[ $section ] = bizmax_home_merge_defaults( is_array( $saved[ $section ] ?? null ) ? $saved[ $section ] : array(), $def['fields'] );
+	}
+
+	/**
+	 * Filter a template page's content before rendering (e.g. "bizmax_home_content",
+	 * "bizmax_bizlabs_content"; the home filter can inject events from a CPT).
+	 *
+	 * @param array $content Content by section.
+	 * @param int   $post_id Page ID.
+	 */
+	$cache[ $key ] = apply_filters( "bizmax_{$type}_content", $content, $post_id );
+	return $cache[ $key ];
+}
+
+/**
+ * Get the complete home content for a page.
  *
  * @param int $post_id Page ID.
  * @return array<string,array<string,mixed>>
  */
 function bizmax_home_get( int $post_id ): array {
-	$saved = get_post_meta( $post_id, BIZMAX_HOME_META, true );
-	$saved = is_array( $saved ) ? $saved : array();
-
-	$content = array();
-	foreach ( bizmax_home_schema() as $section => $def ) {
-		$content[ $section ] = bizmax_home_merge_defaults( is_array( $saved[ $section ] ?? null ) ? $saved[ $section ] : array(), $def['fields'] );
-	}
-
-	/**
-	 * Filter the home content before rendering (e.g. to inject events from a CPT).
-	 *
-	 * @param array $content Content by section.
-	 * @param int   $post_id Page ID.
-	 */
-	return apply_filters( 'bizmax_home_content', $content, $post_id );
+	return bizmax_page_get( 'home', $post_id );
 }
 
 /**
- * Save sanitized content.
+ * Save sanitized content for a page type.
+ *
+ * @param string              $type    Page type.
+ * @param int                 $post_id Page ID.
+ * @param array<string,mixed> $input   Raw POST array.
+ */
+function bizmax_page_save( string $type, int $post_id, array $input ): void {
+	$types = bizmax_page_types();
+	if ( isset( $types[ $type ] ) ) {
+		update_post_meta( $post_id, $types[ $type ]['meta'], bizmax_page_sanitize( $type, $input ) );
+	}
+}
+
+/**
+ * Save sanitized home content.
  *
  * @param int                 $post_id Page ID.
  * @param array<string,mixed> $input   Raw POST array.
  */
 function bizmax_home_save( int $post_id, array $input ): void {
-	update_post_meta( $post_id, BIZMAX_HOME_META, bizmax_home_sanitize( $input ) );
+	bizmax_page_save( 'home', $post_id, $input );
 }
 
 /**
@@ -240,7 +349,7 @@ function bizmax_maybe_upgrade_home_content(): void {
 	foreach ( $changes as $card => [ $old, $new ] ) {
 		if ( isset( $saved['about'][ $card ]['url'] ) && $old === $saved['about'][ $card ]['url'] ) {
 			$saved['about'][ $card ]['url'] = esc_url_raw( $new );
-			$changed                         = true;
+			$changed                        = true;
 		}
 	}
 	if ( $changed ) {

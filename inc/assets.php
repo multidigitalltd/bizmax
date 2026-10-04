@@ -23,6 +23,25 @@ function bizmax_asset( string $relative ): string {
 }
 
 /**
+ * Settings for the shared page script (home.js): REST base and user-facing messages.
+ *
+ * @return array<string,mixed>
+ */
+function bizmax_page_script_config(): array {
+	return array(
+		'restUrl'  => esc_url_raw( rest_url( 'bizmax/v1/' ) ),
+		'messages' => array(
+			'sending' => __( 'שולח…', 'bizmax' ),
+			'success' => __( 'נשלח! נחזור אליכם בקרוב', 'bizmax' ),
+			'error'   => __( 'השליחה נכשלה, נסו שוב בעוד רגע.', 'bizmax' ),
+			/* translators: 1: current item, 2: total items. */
+			'quote'   => __( 'המלצה %1$d מתוך %2$d', 'bizmax' ),
+			'human'   => __( 'נא להשלים את אימות האבטחה שמעל כפתור השליחה.', 'bizmax' ),
+		),
+	);
+}
+
+/**
  * Enqueue site-wide and home-only assets.
  */
 function bizmax_enqueue_assets(): void {
@@ -32,20 +51,7 @@ function bizmax_enqueue_assets(): void {
 	if ( bizmax_is_home_template() ) {
 		wp_enqueue_style( 'bizmax-home', bizmax_asset( 'css/home.css' ), array( 'bizmax-main' ), BIZMAX_VERSION );
 		wp_enqueue_script( 'bizmax-home', bizmax_asset( 'js/home.js' ), array(), BIZMAX_VERSION, array( 'strategy' => 'defer' ) );
-		wp_localize_script(
-			'bizmax-home',
-			'bizmaxHome',
-			array(
-				'restUrl'  => esc_url_raw( rest_url( 'bizmax/v1/' ) ),
-				'messages' => array(
-					'sending' => __( 'שולח…', 'bizmax' ),
-					'success' => __( 'נשלח! נחזור אליכם בקרוב', 'bizmax' ),
-					'error'   => __( 'השליחה נכשלה, נסו שוב בעוד רגע.', 'bizmax' ),
-					'quote'   => __( 'המלצה %1$d מתוך %2$d', 'bizmax' ),
-					'human'   => __( 'נא להשלים את אימות האבטחה שמעל כפתור השליחה.', 'bizmax' ),
-				),
-			)
-		);
+		wp_localize_script( 'bizmax-home', 'bizmaxHome', bizmax_page_script_config() );
 	}
 
 	// The theme does not ship block styles on the front end; Elementor pages carry their own CSS.

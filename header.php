@@ -29,13 +29,39 @@ if ( bizmax_is_canvas() ) {
 		<button class="bz-burger" type="button" aria-expanded="false" aria-controls="bz-drawer" aria-label="<?php esc_attr_e( 'פתיחת תפריט', 'bizmax' ); ?>" data-bz-drawer-open>
 			<span></span><span></span><span></span>
 		</button>
-		<?php if ( has_nav_menu( 'primary' ) ) : ?>
+		<?php
+		// The BizLabs template has its own in-page navigation and a second (BizLabs) logo.
+		$bz_page_head = bizmax_is_bizlabs_template() ? bizmax_page_get( 'bizlabs', (int) get_queried_object_id() )['header'] : null;
+		?>
+		<?php if ( $bz_page_head ) : ?>
+			<?php bizmax_page_nav( $bz_page_head['links'], 'bz-nav__list', __( 'ניווט בעמוד ביזלאבס', 'bizmax' ) ); ?>
+		<?php elseif ( has_nav_menu( 'primary' ) ) : ?>
 			<nav class="bz-nav" aria-label="<?php esc_attr_e( 'ניווט ראשי', 'bizmax' ); ?>">
 				<?php bizmax_menu( 'primary', 'bz-nav__list' ); ?>
 			</nav>
 		<?php endif; ?>
 		<div class="bz-header__spacer"></div>
-		<?php bizmax_logo( 'bz-logo' ); ?>
+		<?php if ( $bz_page_head ) : ?>
+			<div class="bz-header__logos">
+				<?php
+				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in helper.
+				echo bizmax_image(
+					(int) $bz_page_head['logo'],
+					'medium',
+					'bizlabs/logo-bizlabs',
+					array(
+						'class'         => 'bz-header__sublogo',
+						'alt'           => $bz_page_head['logo_alt'],
+						'fetchpriority' => 'high',
+					)
+				);
+				?>
+				<span class="bz-header__divider" aria-hidden="true"></span>
+				<?php bizmax_logo( 'bz-logo' ); ?>
+			</div>
+		<?php else : ?>
+			<?php bizmax_logo( 'bz-logo' ); ?>
+		<?php endif; ?>
 	</div>
 </header>
 
@@ -46,6 +72,9 @@ if ( bizmax_is_canvas() ) {
 			<span class="bz-drawer__title" id="bz-drawer-title"><?php esc_html_e( 'תפריט', 'bizmax' ); ?></span>
 			<button type="button" class="bz-drawer__close" aria-label="<?php esc_attr_e( 'סגירת תפריט', 'bizmax' ); ?>" data-bz-drawer-close><?php bizmax_icon( 'x', 22 ); ?></button>
 		</div>
+		<?php if ( $bz_page_head ) : ?>
+			<?php bizmax_page_nav( $bz_page_head['links'], 'bz-drawer__list bz-drawer__list--page', __( 'בעמוד הזה', 'bizmax' ), 'bz-drawer__nav' ); ?>
+		<?php endif; ?>
 		<?php $bz_drawer_menu = has_nav_menu( 'drawer' ) ? 'drawer' : 'primary'; ?>
 		<?php if ( has_nav_menu( $bz_drawer_menu ) ) : ?>
 			<nav class="bz-drawer__nav" aria-label="<?php esc_attr_e( 'תפריט האתר', 'bizmax' ); ?>">

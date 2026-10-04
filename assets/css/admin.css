@@ -24,3 +24,7 @@
 .bz-admin__row-fields{padding:12px 14px 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:0 20px}
 .bz-admin__row-fields .bz-admin__field--textarea{grid-column:1/-1}
 .bz-admin__row-fields textarea{max-width:100%}
+.bz-admin__asset{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.bz-admin__asset img{max-width:96px;max-height:48px;width:auto;height:auto;border:1px solid #dcdcde;border-radius:4px;background:#fff;padding:2px}
+.bz-admin__field--asset{margin-top:-8px}
+.bz-admin__color{width:64px;height:34px;padding:2px;vertical-align:middle}

@@ -1,6 +1,7 @@
 <?php
 /**
- * Home page admin: a schema-driven meta box on the page that uses template-home.php.
+ * Admin for the theme's template-driven pages (home, BizLabs): a schema-driven, tabbed meta box
+ * on the page that uses the template. Field rendering is shared by every page type.
  *
  * @package Bizmax
  */
@@ -15,15 +16,15 @@ const BIZMAX_HOME_NONCE = 'bizmax_home_save';
  * @param int $post_id Page ID.
  */
 function bizmax_is_home_page( int $post_id ): bool {
-	return 'template-home.php' === get_page_template_slug( $post_id );
+	return 'home' === bizmax_page_type_for( $post_id );
 }
 
 /**
- * The home page is form-driven: drop the content editor for it (classic edit screen + meta box).
+ * Template pages are form-driven: drop the content editor for them (classic edit screen + meta box).
  */
 function bizmax_home_admin_editor(): void {
 	$post_id = isset( $_GET['post'] ) ? absint( $_GET['post'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only screen routing.
-	if ( $post_id && 'page' === get_post_type( $post_id ) && bizmax_is_home_page( $post_id ) ) {
+	if ( $post_id && 'page' === get_post_type( $post_id ) && '' !== bizmax_page_type_for( $post_id ) ) {
 		remove_post_type_support( 'page', 'editor' );
 		add_filter( 'use_block_editor_for_post', '__return_false', 100 );
 	}
@@ -40,11 +41,12 @@ function bizmax_home_meta_box( string $post_type, WP_Post $post ): void {
 	if ( 'page' !== $post_type ) {
 		return;
 	}
-	if ( ! bizmax_is_home_page( $post->ID ) ) {
-		add_meta_box( 'bizmax-home-hint', __( 'דף הבית – ביזמקס', 'bizmax' ), 'bizmax_home_meta_box_hint', 'page', 'side', 'low' );
+	$type = bizmax_page_type_for( $post->ID );
+	if ( '' === $type ) {
+		add_meta_box( 'bizmax-home-hint', __( 'תבניות ביזמקס', 'bizmax' ), 'bizmax_home_meta_box_hint', 'page', 'side', 'low' );
 		return;
 	}
-	add_meta_box( 'bizmax-home', __( 'תוכן דף הבית', 'bizmax' ), 'bizmax_home_meta_box_render', 'page', 'normal', 'high' );
+	add_meta_box( 'bizmax-home', bizmax_page_types()[ $type ]['label'], 'bizmax_home_meta_box_render', 'page', 'normal', 'high' );
 }
 add_action( 'add_meta_boxes', 'bizmax_home_meta_box', 10, 2 );
 
@@ -52,7 +54,7 @@ add_action( 'add_meta_boxes', 'bizmax_home_meta_box', 10, 2 );
  * Hint shown on regular pages.
  */
 function bizmax_home_meta_box_hint(): void {
-	echo '<p>' . esc_html__( 'כדי לערוך את דף הבית של התבנית: בחרו בתבנית "דף הבית – ביזמקס" תחת "מאפייני עמוד", שמרו, ושדות התוכן יופיעו כאן.', 'bizmax' ) . '</p>';
+	echo '<p>' . esc_html__( 'לעמוד בעיצוב של התבנית: בחרו תחת "מאפייני עמוד" בתבנית "דף הבית – ביזמקס" או "ביזלאבס – ביזמקס", שמרו, ושדות התוכן יופיעו כאן.', 'bizmax' ) . '</p>';
 }
 
 /**
@@ -65,7 +67,7 @@ function bizmax_home_admin_assets( string $hook ): void {
 		return;
 	}
 	$post_id = isset( $_GET['post'] ) ? absint( $_GET['post'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-	if ( ! $post_id || ! bizmax_is_home_page( $post_id ) ) {
+	if ( ! $post_id || '' === bizmax_page_type_for( $post_id ) ) {
 		return;
 	}
 	wp_enqueue_media();
@@ -89,15 +91,20 @@ add_action( 'admin_enqueue_scripts', 'bizmax_home_admin_assets' );
  * @param WP_Post $post Post.
  */
 function bizmax_home_meta_box_render( WP_Post $post ): void {
-	$schema  = bizmax_home_schema();
-	$content = bizmax_home_get( $post->ID );
+	$type = bizmax_page_type_for( $post->ID );
+	if ( '' === $type ) {
+		return;
+	}
+	$def     = bizmax_page_types()[ $type ];
+	$schema  = bizmax_page_schema( $type );
+	$content = bizmax_page_get( $type, $post->ID );
 
 	wp_nonce_field( BIZMAX_HOME_NONCE, BIZMAX_HOME_NONCE . '_nonce' );
 
-	echo '<p class="description">' . esc_html__( 'כל התוכן של דף הבית נערך כאן ונשמר בתוך הדף. שדות "פסקה" מקבלים HTML בסיסי (b, a, br) ומעברי שורה.', 'bizmax' ) . '</p>';
+	echo '<p class="description">' . esc_html__( 'כל התוכן של העמוד נערך כאן ונשמר בתוך העמוד. שדות "פסקה" מקבלים HTML בסיסי (b, a, br) ומעברי שורה.', 'bizmax' ) . '</p>';
 	echo '<div class="bz-admin">';
 
-	echo '<div class="bz-admin__tabs" role="tablist" aria-label="' . esc_attr__( 'מקטעי דף הבית', 'bizmax' ) . '">';
+	echo '<div class="bz-admin__tabs" role="tablist" aria-label="' . esc_attr__( 'מקטעי העמוד', 'bizmax' ) . '">';
 	$first = true;
 	foreach ( $schema as $key => $section ) {
 		printf(
@@ -119,7 +126,7 @@ function bizmax_home_meta_box_render( WP_Post $post ): void {
 			esc_attr( $key ),
 			$first ? '' : ' hidden'
 		);
-		bizmax_home_render_fields( $section['fields'], $content[ $key ], 'bizmax_home[' . $key . ']', 'bz-' . $key );
+		bizmax_home_render_fields( $section['fields'], $content[ $key ], $def['field'] . '[' . $key . ']', 'bz-' . $key );
 		echo '</div>';
 		$first = false;
 	}
@@ -221,21 +228,53 @@ function bizmax_home_render_field( array $field, $value, string $name, string $i
 			);
 			break;
 
+		case 'asset':
+			// Bundled default image: kept unless an image is chosen in the field above, or the row is removed.
+			$value = (string) $value;
+			printf( '<input type="hidden" name="%1$s" id="%2$s" value="%3$s">', esc_attr( $name ), esc_attr( $id ), esc_attr( $value ) );
+			if ( '' !== $value ) {
+				printf(
+					'<span class="bz-admin__asset">%1$s <span class="description">%2$s</span></span>',
+					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in helper.
+					bizmax_image(
+						0,
+						'thumbnail',
+						$value,
+						array(
+							'alt'   => '',
+							'class' => 'bz-admin__asset-img',
+						)
+					), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in helper.
+					esc_html__( 'תמונה מובנית בתבנית. בחירת תמונה בשדה שמעל מחליפה אותה.', 'bizmax' )
+				);
+			}
+			break;
+
 		default:
 			$input_type = match ( $type ) {
-				'number' => 'number',
-				'date'   => 'date',
-				'email'  => 'email',
-				default  => 'text',
+				'number', 'decimal' => 'number',
+				'date'              => 'date',
+				'email'             => 'email',
+				'color'             => 'color',
+				default             => 'text',
 			};
+			$extra = '';
+			if ( 'url' === $type ) {
+				$extra = ' placeholder="https://… או #anchor"';
+			} elseif ( 'decimal' === $type ) {
+				$extra = ' step="0.1" min="0"';
+			} elseif ( 'number' === $type ) {
+				$extra = ' min="0"';
+			}
 			printf(
-				'<label for="%1$s">%2$s</label><input type="%3$s" name="%4$s" id="%1$s" value="%5$s" class="regular-text"%6$s>',
+				'<label for="%1$s">%2$s</label><input type="%3$s" name="%4$s" id="%1$s" value="%5$s" class="%6$s"%7$s>',
 				esc_attr( $id ),
 				esc_html( $label ),
 				esc_attr( $input_type ),
 				esc_attr( $name ),
 				esc_attr( (string) $value ),
-				'url' === $type ? ' placeholder="https://… או #anchor"' : ''
+				'color' === $type ? 'bz-admin__color' : 'regular-text',
+				$extra // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fixed attribute strings above.
 			);
 	}
 
@@ -245,10 +284,10 @@ function bizmax_home_render_field( array $field, $value, string $name, string $i
 /**
  * Render a repeater with an HTML <template> for new rows.
  *
- * @param array<string,mixed>       $field  Definition.
- * @param array<int,array>          $rows   Values.
- * @param string                    $name   Input name prefix.
- * @param string                    $id     ID prefix.
+ * @param array<string,mixed> $field  Definition.
+ * @param array<int,array>    $rows   Values.
+ * @param string              $name   Input name prefix.
+ * @param string              $id     ID prefix.
  */
 function bizmax_home_render_repeater( array $field, array $rows, string $name, string $id ): void {
 	printf(
@@ -302,11 +341,17 @@ function bizmax_home_save_meta( int $post_id, WP_Post $post ): void {
 	if ( ! current_user_can( 'edit_page', $post_id ) ) {
 		return;
 	}
-	if ( ! isset( $_POST['bizmax_home'] ) || ! is_array( $_POST['bizmax_home'] ) ) {
+	// The page's (already saved) template decides which content set the form belongs to.
+	$type = bizmax_page_type_for( $post_id );
+	if ( '' === $type ) {
 		return;
 	}
-	// Sanitized field-by-field against the schema in bizmax_home_sanitize().
-	bizmax_home_save( $post_id, wp_unslash( $_POST['bizmax_home'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+	$field = bizmax_page_types()[ $type ]['field'];
+	if ( ! isset( $_POST[ $field ] ) || ! is_array( $_POST[ $field ] ) ) {
+		return;
+	}
+	// Sanitized field-by-field against the schema in bizmax_page_sanitize().
+	bizmax_page_save( $type, $post_id, wp_unslash( $_POST[ $field ] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 }
 add_action( 'save_post_page', 'bizmax_home_save_meta', 10, 2 );
 
@@ -317,7 +362,9 @@ add_action( 'save_post_page', 'bizmax_home_save_meta', 10, 2 );
  * @return array<string,string>
  */
 function bizmax_home_template_label( array $templates ): array {
-	$templates['template-home.php'] = __( 'דף הבית – ביזמקס', 'bizmax' );
+	foreach ( bizmax_page_types() as $def ) {
+		$templates[ $def['template'] ] = $def['template_label'];
+	}
 	return $templates;
 }
 add_filter( 'theme_page_templates', 'bizmax_home_template_label' );
