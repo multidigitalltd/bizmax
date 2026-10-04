@@ -63,6 +63,62 @@ function bizmax_cta( string $text, string $url, string $style = 'secondary', str
 }
 
 /**
+ * Inner pages that a home-page anchor stands for ("#deschool" → the DeSchool page).
+ * The BizLabs entry prefers the published BizLabs-template page, so the link follows the
+ * new page once it goes live. Filter: "bizmax_inner_pages".
+ *
+ * @return array<string,string> Anchor => URL (empty when no such page exists).
+ */
+function bizmax_inner_pages(): array {
+	static $pages = null;
+	if ( null !== $pages ) {
+		return $pages;
+	}
+
+	$by_path = static function ( string $path ): string {
+		$page = get_page_by_path( $path );
+		return ( $page instanceof WP_Post && 'publish' === $page->post_status ) ? (string) get_permalink( $page ) : '';
+	};
+
+	$bizlabs = get_posts(
+		array(
+			'post_type'      => 'page',
+			'post_status'    => 'publish',
+			'posts_per_page' => 1,
+			'fields'         => 'ids',
+			'orderby'        => 'date',
+			'order'          => 'ASC',
+			'meta_key'       => '_wp_page_template', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- one small query per request, cached below.
+			'meta_value'     => 'template-bizlabs.php', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+		)
+	);
+
+	$pages = (array) apply_filters(
+		'bizmax_inner_pages',
+		array(
+			'deschool' => $by_path( 'theschool' ),
+			'bizlabs'  => $bizlabs ? (string) get_permalink( $bizlabs[0] ) : $by_path( 'bizlabs-new' ),
+		)
+	);
+	return $pages;
+}
+
+/**
+ * Capsule link: a home-page anchor that has an inner page ("#deschool", "/#bizlabs") opens that
+ * page; any other URL is returned unchanged.
+ *
+ * @param string $url Stored URL.
+ */
+function bizmax_capsule_url( string $url ): string {
+	$home = untrailingslashit( home_url() );
+	if ( ! preg_match( '~^(?:' . preg_quote( $home, '~' ) . ')?/?#([a-z0-9_-]+)$~i', $url, $m ) ) {
+		return $url;
+	}
+	$target = (string) ( bizmax_inner_pages()[ strtolower( $m[1] ) ] ?? '' );
+	return '' !== $target ? $target : $url;
+}
+
+/**
  * Dimensions of the bundled placeholder images (for width/height attributes → no CLS).
  *
  * @return array<string,array{0:int,1:int,2:string}>
