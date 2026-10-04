@@ -1,6 +1,6 @@
 <?php
 /**
- * First-run setup: create the home page, default menus and an accessibility statement draft.
+ * First-run setup: create the home page, default menus and the accessibility statement (inc/a11y-statement.php).
  * Nothing here overrides existing site configuration.
  *
  * @package Bizmax
@@ -17,6 +17,7 @@ function bizmax_after_switch(): void {
 	bizmax_ensure_menus( $home_id );
 	update_option( 'bizmax_menus_setup', 2 );
 	bizmax_ensure_a11y_page();
+	update_option( 'bizmax_a11y_statement_setup', 1, false );
 	bizmax_ensure_privacy_page();
 }
 add_action( 'after_switch_theme', 'bizmax_after_switch' );
@@ -161,30 +162,6 @@ function bizmax_ensure_menus( int $home_id ): void {
 		$locations[ $location ] = $menu_id;
 	}
 	set_theme_mod( 'nav_menu_locations', $locations );
-}
-
-/**
- * Create a draft "הצהרת נגישות" page skeleton (required by Israeli regulation; content to be completed).
- */
-function bizmax_ensure_a11y_page(): void {
-	if ( get_page_by_path( 'accessibility-statement' ) ) {
-		return;
-	}
-	$content  = '<h2>הצהרת נגישות</h2>';
-	$content .= '<p>אנו רואים חשיבות רבה במתן שירות שוויוני לכלל הגולשים ובשיפור הנגישות של האתר לאנשים עם מוגבלות, בהתאם לתקנות שוויון זכויות לאנשים עם מוגבלות (התאמות נגישות לשירות), התשע"ג-2013, ולתקן הישראלי ת"י 5568 המבוסס על הנחיות WCAG 2.2 ברמה AA.</p>';
-	$content .= '<h3>התאמות הנגישות באתר</h3><ul><li>ניווט מלא באמצעות מקלדת וקישור "דלג לתוכן".</li><li>תמיכה בקוראי מסך: מבנה סמנטי, כותרות היררכיות, טקסטים חלופיים לתמונות ותוויות לשדות טפסים.</li><li>ניגודיות צבעים תקנית ואפשרות להגדלת הטקסט עד 200%.</li><li>כיבוד העדפת "הפחתת תנועה" של מערכת ההפעלה.</li><li>תפריט נגישות זמין בכל עמוד: הגדלת טקסט, ניגודיות גבוהה, רקע בהיר, גווני אפור, הדגשת קישורים וכותרות, גופן קריא, ריווח טקסט, עצירת אנימציות, סמן גדול והדגשת מיקוד מקלדת.</li></ul>';
-	$content .= '<h3>דרכי פנייה בנושאי נגישות</h3><p>רכז/ת הנגישות: [שם]<br>טלפון: [טלפון]<br>דוא"ל: [מייל]</p>';
-	$content .= '<p>ההצהרה עודכנה בתאריך: [תאריך]</p>';
-
-	wp_insert_post(
-		array(
-			'post_type'    => 'page',
-			'post_status'  => 'draft',
-			'post_title'   => 'הצהרת נגישות',
-			'post_name'    => 'accessibility-statement',
-			'post_content' => $content,
-		)
-	);
 }
 
 /**
