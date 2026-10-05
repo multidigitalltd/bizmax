@@ -280,14 +280,36 @@ html.js .rv.rv-in{opacity:1;transform:none}
 	.bz-hero__title{font-size:40px}
 	.bz-hero__title .bz-flower{width:30px;height:30px}
 	.bz-hero__lead{font-size:18px;margin-bottom:28px}
-	.bz-hero__cluster{width:auto;height:auto;align-self:stretch;margin-top:36px;margin-inline:calc(var(--bz-gutter) * -1)}
-	.bz-hero__canvas{position:static;width:auto;height:auto;transform:none;display:flex;gap:16px;overflow-x:auto;padding:12px var(--bz-gutter) 20px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
-	.bz-cap{position:static;flex:none;scroll-snap-align:center;animation:none;transform:scale(.85);transform-origin:top center;margin-bottom:-60px}
-	.bz-cap--a{margin-inline-start:0}
+	/* Hero capsules: all four in a staggered two-column grid, each one a full tap target. */
+	.bz-hero__cluster{width:auto;height:auto;align-self:stretch;margin-top:8px;padding-bottom:40px}
+	.bz-hero__canvas{position:static;width:auto;height:auto;transform:none;display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+	.bz-cap{position:relative;inset:auto;width:auto;height:auto;min-height:250px;border-radius:90px;padding:30px 14px 22px;gap:12px;animation:none;justify-content:flex-start}
+	.bz-cap--b,.bz-cap--d{transform:translateY(40px)}
+	.bz-cap--a,.bz-cap--c{min-height:290px}
+	.bz-cap__text,.bz-cap__text--dark,.bz-cap--d .bz-cap__text--dark{font-size:17px;line-height:1.35}
+	.bz-cap__text--plain{font-size:16px}
+	.bz-cap svg{height:auto;max-height:70px;width:auto;max-width:44px;flex:none}
+	.bz-cap__photo{width:96px;height:96px}
+	.bz-cap .bz-bars--lg{height:96px;transform:scale(.8);transform-origin:center top;margin-bottom:-18px}
+	.bz-orb--lg{width:90px;height:90px}
+	.bz-orb--lg .bz-orb__gem--green{width:26px;height:26px}
+	.bz-cap:active{transform:scale(.97)}
+	.bz-cap--b:active,.bz-cap--d:active{transform:translateY(40px) scale(.97)}
 	.bz-feature__frame{padding:14px;border-radius:20px}
 	.bz-feature__img{border-radius:12px}
-	.bz-station{flex-basis:100%}
-	.bz-events__grid{grid-template-columns:1fr}
+	/* Stations: two per row, smaller photos. */
+	.bz-stations{gap:28px 14px}
+	.bz-station{flex:1 1 40%;gap:10px}
+	.bz-station__img{width:112px;height:112px}
+	.bz-station__num{width:36px;height:36px;font-size:15px}
+	.bz-station__title{font-size:17px}
+	.bz-station__text{font-size:14.5px;line-height:1.55}
+	/* Events: a swipeable row (the next card peeks in) instead of a long stack. */
+	.bz-events__grid{display:flex;position:relative;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;margin-inline:calc(var(--bz-gutter) * -1);padding:4px var(--bz-gutter) 16px;scroll-padding-inline:var(--bz-gutter);-webkit-overflow-scrolling:touch;scrollbar-width:none}
+	.bz-events__grid::-webkit-scrollbar{display:none}
+	.bz-event{flex:0 0 82%;scroll-snap-align:start;position:relative}
+	.bz-event:hover,.bz-event:focus-within{transform:none}
+	.bz-event__img{height:170px}
 	.bz-bento{grid-template-columns:1fr}
 	.bz-counter{min-height:0}
 	.bz-counter__num{font-size:44px}

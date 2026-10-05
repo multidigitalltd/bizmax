@@ -30,11 +30,12 @@ if ( bizmax_is_canvas() ) {
 			<span></span><span></span><span></span>
 		</button>
 		<?php
-		// The BizLabs template has its own in-page navigation and a second (BizLabs) logo.
+		// The BizLabs template has its own header menu (the program pages), a second (BizLabs) logo
+		// and in-page links in the drawer.
 		$bz_page_head = bizmax_is_bizlabs_template() ? bizmax_page_get( 'bizlabs', (int) get_queried_object_id() )['header'] : null;
 		?>
 		<?php if ( $bz_page_head ) : ?>
-			<?php bizmax_page_nav( $bz_page_head['links'], 'bz-nav__list', __( 'ניווט בעמוד ביזלאבס', 'bizmax' ) ); ?>
+			<?php bizmax_page_nav( $bz_page_head['nav'], 'bz-nav__list', __( 'ניווט ביזלאבס', 'bizmax' ) ); ?>
 		<?php elseif ( has_nav_menu( 'primary' ) ) : ?>
 			<nav class="bz-nav" aria-label="<?php esc_attr_e( 'ניווט ראשי', 'bizmax' ); ?>">
 				<?php bizmax_menu( 'primary', 'bz-nav__list' ); ?>

@@ -1,6 +1,16 @@
-/* Bizmax – global script: accessible hamburger drawer (no dependencies). */
+/* Bizmax – global script: sticky-header shadow and accessible hamburger drawer (no dependencies). */
 (function () {
 	'use strict';
+
+	// Shadow under the sticky (mobile) header once the page has scrolled.
+	var header = document.getElementById('masthead');
+	if (header) {
+		var onScroll = function () {
+			header.classList.toggle('is-stuck', window.scrollY > 4);
+		};
+		window.addEventListener('scroll', onScroll, { passive: true });
+		onScroll();
+	}
 
 	var drawer = document.querySelector('[data-bz-drawer]');
 	var opener = document.querySelector('[data-bz-drawer-open]');

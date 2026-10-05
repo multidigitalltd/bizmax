@@ -11,6 +11,21 @@
 defined( 'ABSPATH' ) || exit;
 
 /**
+ * Inner page of a BizLabs program (header menu and the "מעבר למסלול" links on the tracks).
+ *
+ * @param string $program awareness|pre|accelerator|scale.
+ */
+function bizmax_bizlabs_program_url( string $program ): string {
+	$paths = array(
+		'awareness'   => '/bizlabs-awareness-inspiration/',
+		'pre'         => '/pre-accelerator/',
+		'accelerator' => '/bizlabs-accelerator/',
+		'scale'       => '/bizlabs-scale/',
+	);
+	return isset( $paths[ $program ] ) ? home_url( $paths[ $program ] ) : '';
+}
+
+/**
  * Print multi-paragraph text: a blank line starts a new paragraph, single newlines become <br>.
  *
  * @param string $text  Stored text (basic HTML allowed).
@@ -147,15 +162,62 @@ function bizmax_bizlabs_preload(): void {
 add_action( 'wp_head', 'bizmax_bizlabs_preload', 2 );
 
 /**
- * Create the BizLabs page once, as a draft, so it can be reviewed before it goes live.
- * Runs on the first admin visit after the update; never touches an existing page.
+ * One-time BizLabs setup on the first admin visit after an update: create the draft page
+ * (1.5.0; never touches an existing page), then link the tracks to the program pages (1.5.2).
  */
 function bizmax_maybe_create_bizlabs_page(): void {
-	if ( (int) get_option( 'bizmax_bizlabs_setup', 0 ) >= 1 || ! current_user_can( 'publish_pages' ) ) {
+	$setup = (int) get_option( 'bizmax_bizlabs_setup', 0 );
+	if ( $setup >= 2 || ! current_user_can( 'publish_pages' ) ) {
 		return;
 	}
-	update_option( 'bizmax_bizlabs_setup', 1, false );
+	update_option( 'bizmax_bizlabs_setup', 2, false );
+	if ( $setup < 1 ) {
+		bizmax_create_bizlabs_page();
+	}
+	bizmax_bizlabs_link_programs();
+}
+add_action( 'admin_init', 'bizmax_maybe_create_bizlabs_page' );
 
+/**
+ * 1.5.2: on BizLabs pages saved before the program pages were linked, point each track's
+ * "מעבר למסלול" from the sign-up form ("#lform", the old default) to its program page.
+ * Rows whose link was changed by hand are left alone.
+ */
+function bizmax_bizlabs_link_programs(): void {
+	$defaults = bizmax_page_schema( 'bizlabs' )['tracks']['fields']['items']['default'];
+	$pages    = get_posts(
+		array(
+			'post_type'      => 'page',
+			'post_status'    => 'any',
+			'posts_per_page' => -1,
+			'fields'         => 'ids',
+			'meta_key'       => '_wp_page_template', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- one-time admin upgrade.
+			'meta_value'     => 'template-bizlabs.php', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+		)
+	);
+	foreach ( $pages as $page_id ) {
+		$saved = get_post_meta( $page_id, '_bizmax_bizlabs', true );
+		if ( ! is_array( $saved ) || empty( $saved['tracks']['items'] ) || ! is_array( $saved['tracks']['items'] ) ) {
+			continue;
+		}
+		$changed = false;
+		foreach ( $saved['tracks']['items'] as $i => $row ) {
+			$default = $defaults[ $i ] ?? null;
+			if ( is_array( $row ) && $default && '#lform' === ( $row['url'] ?? '' ) && ( $row['title'] ?? '' ) === $default['title'] ) {
+				$saved['tracks']['items'][ $i ]['url'] = $default['url'];
+				$changed                               = true;
+			}
+		}
+		if ( $changed ) {
+			update_post_meta( $page_id, '_bizmax_bizlabs', $saved );
+		}
+	}
+}
+
+/**
+ * Insert the draft BizLabs page unless a page already uses the template.
+ */
+function bizmax_create_bizlabs_page(): void {
 	$existing = get_posts(
 		array(
 			'post_type'      => 'page',
@@ -184,4 +246,3 @@ function bizmax_maybe_create_bizlabs_page(): void {
 		update_post_meta( $id, '_wp_page_template', 'template-bizlabs.php' );
 	}
 }
-add_action( 'admin_init', 'bizmax_maybe_create_bizlabs_page' );

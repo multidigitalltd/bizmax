@@ -57,9 +57,58 @@ return array(
 				'label'   => __( 'טקסט חלופי ללוגו', 'bizmax' ),
 				'default' => 'BizLabs',
 			),
+			'nav'      => array(
+				'type'    => 'repeater',
+				'label'   => __( 'התפריט הפתוח בהידר (מחשב)', 'bizmax' ),
+				'max'     => 8,
+				'fields'  => array(
+					'text'   => array(
+						'type'    => 'text',
+						'label'   => __( 'טקסט', 'bizmax' ),
+						'default' => '',
+					),
+					'url'    => array(
+						'type'    => 'url',
+						'label'   => __( 'קישור', 'bizmax' ),
+						'default' => '',
+					),
+					'active' => array(
+						'type'    => 'checkbox',
+						'label'   => __( 'מודגש (העמוד הנוכחי)', 'bizmax' ),
+						'default' => false,
+					),
+				),
+				'default' => array(
+					array(
+						'text'   => 'אודות ביזלאבס',
+						'url'    => '#labout',
+						'active' => false,
+					),
+					array(
+						'text'   => 'מודעות והשראה',
+						'url'    => bizmax_bizlabs_program_url( 'awareness' ),
+						'active' => false,
+					),
+					array(
+						'text'   => 'האצה',
+						'url'    => bizmax_bizlabs_program_url( 'accelerator' ),
+						'active' => false,
+					),
+					array(
+						'text'   => 'הנבטה',
+						'url'    => bizmax_bizlabs_program_url( 'pre' ),
+						'active' => false,
+					),
+					array(
+						'text'   => 'צמיחה',
+						'url'    => bizmax_bizlabs_program_url( 'scale' ),
+						'active' => false,
+					),
+				),
+			),
 			'links'    => array(
 				'type'    => 'repeater',
-				'label'   => __( 'קישורי התפריט בהידר של העמוד', 'bizmax' ),
+				'label'   => __( 'קישורי העמוד בתפריט הצד (המבורגר)', 'bizmax' ),
 				'max'     => 8,
 				'fields'  => array(
 					'text'   => array(
@@ -236,23 +285,27 @@ return array(
 						'tagline'  => 'מיטאפים. קהילה. חדשנות',
 						'text'     => '6 מפגשי ערב, 2 האקתונים ו-70 שעות ייעוץ פרטני, בליווי מנטורים בכירים ודמויות מפתח בתעשיית ההייטק',
 						'audience' => 'אנשים בעלי זיקה טכנולוגית וראש עסקי – אין צורך ברעיון מוכן',
+						'url'      => bizmax_bizlabs_program_url( 'awareness' ),
 					),
 					array(
 						'title'    => 'הנבטה',
 						'english'  => 'Pre-Accelerator',
 						'text'     => '12 מפגשים לאורך שלושה חודשים הכוללים סדנאות בנושאי יזמות, ולידציה, שיווק, מיתוג וגיוס ראשוני, סיור מקצועי, מנטורינג אישי מבוגרים ודמו-דיי בפני משקיעים.',
 						'audience' => 'יזמים עם רעיון ראשוני ומגובש לפני גיוס',
+						'url'      => bizmax_bizlabs_program_url( 'pre' ),
 					),
 					array(
 						'title'    => 'האצה — אקסלרטור',
 						'text'     => '15 מפגשים פרונטליים הכוללים סדנאות בנושאים מתקדמים ביזמות, שיווק, יציאה לשוק, הצגה בפני משקיעים וניהול פיננסי, שעות ייעוץ ומנטורינג אישי בסבסוד התוכנית, אירוע Showcase בפני משקיעים, מרחב עבודה ללא עלות בביזמקס ועוד.',
 						'audience' => 'יזמים עם מוצר פעיל וצוות במשרה מלאה',
+						'url'      => bizmax_bizlabs_program_url( 'accelerator' ),
 					),
 					array(
 						'title'    => 'מועדון המשקיעים',
 						'english'  => 'BizLabs Investor Club',
 						'text'     => '3 אירועי משקיעים בשנה, פגישות אחד-על-אחד מתואמות מראש וליווי בהכנה לפגישות השקעה ובבניית מצגות למשקיעים',
 						'audience' => 'יזמים שגייסו מעל $150,000, עם צוות במשרה מלאה ומוצר בשלב מכירות',
+						'url'      => bizmax_bizlabs_program_url( 'scale' ),
 					),
 				),
 			),

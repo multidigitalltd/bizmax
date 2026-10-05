@@ -159,6 +159,11 @@ body.bz-drawer-open{overflow:hidden}
 	.bz-footer__menus{gap:32px}
 }
 @media (max-width:1024px){
+	/* Mobile/tablet: the header stays pinned to the top while scrolling. */
+	html{scroll-padding-top:88px}
+	.bz-header{position:sticky;top:0;z-index:80;background:#fff;padding-bottom:12px;transition:box-shadow .25s ease}
+	.bz-header.is-stuck{box-shadow:0 6px 18px rgba(15,36,71,.1)}
+	.admin-bar .bz-header{top:var(--wp-admin--admin-bar--height,0px)}
 	.bz-nav{display:none}
 	.bz-logo__img{max-height:46px;max-width:170px}
 	.bz-logo{padding-inline-start:0}
@@ -167,7 +172,7 @@ body.bz-drawer-open{overflow:hidden}
 }
 @media (max-width:640px){
 	:root{--bz-gutter:20px}
-	.bz-header{padding-top:12px}
+	.bz-header{padding-top:12px;padding-bottom:10px}
 	.bz-burger{width:48px;height:48px}
 	.bz-burger span{width:20px}
 	.bz-logo__img{max-height:40px;max-width:150px}
@@ -196,3 +201,7 @@ body.bz-drawer-open{overflow:hidden}
 .comment-form input:focus,.comment-form textarea:focus{border-color:var(--bz-orange);outline:none;box-shadow:0 0 0 4px rgba(246,168,28,.18)}
 .comment-form .submit{background:var(--bz-navy);color:#fff;border:0;border-radius:999px;padding:12px 30px;font-weight:700;font-size:16px;cursor:pointer}
 .comment-form .submit:hover{background:var(--bz-orange);color:var(--bz-navy)}
+/* Below 600px the WordPress admin bar scrolls away with the page. */
+@media (max-width:600px){
+	.admin-bar .bz-header{top:0}
+}
