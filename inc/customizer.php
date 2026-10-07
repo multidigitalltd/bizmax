@@ -27,6 +27,10 @@ function bizmax_mod_defaults(): array {
 		'bizmax_a11y_panel'    => true,
 		'bizmax_a11y_side'     => 'right',
 		'bizmax_a11y_page'     => 0,
+		'bizmax_notice'        => true,
+		'bizmax_notice_title'  => 'האתר מתחדש!',
+		'bizmax_notice_text'   => 'אנחנו באמצע שדרוג, והאתר נהיה נוח ויפה יותר. בינתיים ייתכנו פה ושם תקלות קטנות. תודה על הסבלנות!',
+		'bizmax_notice_button' => 'הבנתי',
 	);
 }
 
@@ -169,6 +173,64 @@ function bizmax_customize_register( WP_Customize_Manager $wp_customize ): void {
 	);
 
 	bizmax_customize_a11y( $wp_customize );
+	bizmax_customize_notice( $wp_customize );
+}
+
+/**
+ * Site notice popup settings (inc/notice.php).
+ *
+ * @param WP_Customize_Manager $wp_customize Manager.
+ */
+function bizmax_customize_notice( WP_Customize_Manager $wp_customize ): void {
+	$wp_customize->add_section(
+		'bizmax_notice',
+		array(
+			'title'       => __( 'ביזמקס – הודעה קופצת', 'bizmax' ),
+			'description' => __( 'הודעה שעולה פעם אחת לכל גולש, בכל עמודי האתר. אחרי שינוי הכותרת או הטקסט היא תעלה שוב לכולם.', 'bizmax' ),
+			'priority'    => 32,
+		)
+	);
+
+	$defaults = bizmax_mod_defaults();
+
+	$wp_customize->add_setting(
+		'bizmax_notice',
+		array(
+			'default'           => true,
+			'sanitize_callback' => 'rest_sanitize_boolean',
+		)
+	);
+	$wp_customize->add_control(
+		'bizmax_notice',
+		array(
+			'label'   => __( 'הצגת ההודעה באתר', 'bizmax' ),
+			'section' => 'bizmax_notice',
+			'type'    => 'checkbox',
+		)
+	);
+
+	$fields = array(
+		'bizmax_notice_title'  => array( __( 'כותרת', 'bizmax' ), 'text', 'sanitize_text_field' ),
+		'bizmax_notice_text'   => array( __( 'טקסט', 'bizmax' ), 'textarea', 'sanitize_textarea_field' ),
+		'bizmax_notice_button' => array( __( 'טקסט הכפתור', 'bizmax' ), 'text', 'sanitize_text_field' ),
+	);
+	foreach ( $fields as $key => [ $label, $type, $sanitize ] ) {
+		$wp_customize->add_setting(
+			$key,
+			array(
+				'default'           => $defaults[ $key ],
+				'sanitize_callback' => $sanitize,
+			)
+		);
+		$wp_customize->add_control(
+			$key,
+			array(
+				'label'   => $label,
+				'section' => 'bizmax_notice',
+				'type'    => $type,
+			)
+		);
+	}
 }
 
 /**

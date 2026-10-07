@@ -7,7 +7,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'BIZMAX_VERSION', '1.5.2' );
+define( 'BIZMAX_VERSION', '1.6.0' );
 define( 'BIZMAX_DIR', get_template_directory() );
 define( 'BIZMAX_URI', get_template_directory_uri() );
 
@@ -26,6 +26,7 @@ require BIZMAX_DIR . '/inc/schema-org.php';
 require BIZMAX_DIR . '/inc/activation.php';
 require BIZMAX_DIR . '/inc/a11y-statement.php';
 require BIZMAX_DIR . '/inc/a11y.php';
+require BIZMAX_DIR . '/inc/notice.php';
 require BIZMAX_DIR . '/inc/deschool.php';
 
 if ( is_admin() ) {
