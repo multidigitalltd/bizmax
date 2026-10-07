@@ -48,14 +48,13 @@ function bizmax_notice_render(): void {
 	$id     = substr( md5( $title . '|' . $text ), 0, 10 );
 	?>
 <dialog class="bz-notice" id="bz-notice" data-bz-notice="<?php echo esc_attr( $id ); ?>" aria-labelledby="<?php echo '' !== $title ? 'bz-notice-title' : 'bz-notice-text'; ?>"<?php echo '' !== $title ? ' aria-describedby="bz-notice-text"' : ''; ?>>
-	<div class="bz-notice__box">
+	<div class="bz-notice__box" tabindex="-1" autofocus>
 		<button type="button" class="bz-notice__close" aria-label="<?php esc_attr_e( 'סגירת ההודעה', 'bizmax' ); ?>" data-bz-notice-close><?php bizmax_icon( 'x', 20 ); ?></button>
-		<span class="bz-notice__icon"><?php bizmax_icon( 'sparkles', 30 ); ?></span>
 		<?php if ( '' !== $title ) : ?>
 			<h2 class="bz-notice__title" id="bz-notice-title"><?php echo esc_html( $title ); ?></h2>
 		<?php endif; ?>
 		<p class="bz-notice__text" id="bz-notice-text"><?php echo nl2br( esc_html( $text ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped before nl2br. ?></p>
-		<button type="button" class="bz-notice__btn" data-bz-notice-close autofocus><?php echo esc_html( '' !== $button ? $button : __( 'הבנתי', 'bizmax' ) ); ?></button>
+		<button type="button" class="bz-notice__btn" data-bz-notice-close><?php echo esc_html( '' !== $button ? $button : __( 'הבנתי', 'bizmax' ) ); ?></button>
 	</div>
 </dialog>
 	<?php
