@@ -62,7 +62,8 @@ Where to put them:
   `versions/v1.html` to `versions/v5.html` and a `versions/index.html` gallery that shows all
   five side by side, each with a live preview (a scaled-down iframe works well), its direction
   name and concept, and a link to open it full size. If a `versions/` folder already exists,
-  write to a new one (`versions-2/` and so on) instead of overwriting it. Open the gallery for
+  write to a new one (`versions-2/` and so on) instead of overwriting it. Use that same folder for
+  every later file in this run (`PICK.md`, refined versions). Open the gallery for
   the user if you can (skip this when running as a subagent or in an automated run). Use these
   files even if an artifact or canvas tool is also available, so the user keeps the five pages
   on their machine.
@@ -77,7 +78,7 @@ step 1. Explain the choice in three short points, tied to that job and that audi
 taste. Then name one thing from the runner-up you would borrow.
 
 When writing files on the user's computer, also write the pick and the reasons to
-`versions/PICK.md` and mark the picked card in the gallery.
+`PICK.md` in the same versions folder and mark the picked card in the gallery.
 
 Then hand the decision to the user: they can take your pick, choose another, or remix
 ("2, with the headline from 4"). The final decision is theirs.
@@ -85,7 +86,7 @@ Then hand the decision to the user: they can take your pick, choose another, or 
 ### 4. Refine the chosen one
 
 Apply the user's choice or remix as a new version of the chosen page (for example
-`versions/v3b.html`), not as five new options. Keep the direction's identity intact. Small
+`v3b.html` in the same versions folder), not as five new options. Keep the direction's identity intact. Small
 tweaks (spacing, a color, a word) are often faster for the user to do by hand; say so when that
 is the case.
 
