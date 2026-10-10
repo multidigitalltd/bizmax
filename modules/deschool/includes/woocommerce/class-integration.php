@@ -1,0 +1,231 @@
+<?php
+/**
+ * WooCommerce integration: link a unit to a product.
+ *
+ * @package MultiDigital\DeSchool
+ */
+
+declare( strict_types=1 );
+
+namespace MultiDigital\DeSchool\WooCommerce;
+
+use MultiDigital\DeSchool\Data;
+
+defined( 'ABSPATH' ) || exit;
+
+/**
+ * Adds the product selector to units and exposes purchase helpers.
+ */
+final class Integration {
+
+	private const NONCE_ACTION = 'mdds_save_product';
+	private const NONCE_NAME   = 'mdds_product_nonce';
+
+	/**
+	 * Hook into WordPress.
+	 */
+	public function register(): void {
+		add_action( 'add_meta_boxes_' . Data::POST_TYPE_UNIT, array( $this, 'add_metabox' ) );
+		add_action( 'save_post_' . Data::POST_TYPE_UNIT, array( $this, 'save' ), 10, 1 );
+	}
+
+	/**
+	 * Register the product metabox.
+	 */
+	public function add_metabox(): void {
+		add_meta_box(
+			'mdds-unit-product',
+			__( 'WooCommerce', 'md-deschool' ),
+			array( $this, 'render' ),
+			Data::POST_TYPE_UNIT,
+			'side',
+			'default'
+		);
+	}
+
+	/**
+	 * Render a product <select> for a given meta key.
+	 *
+	 * @param string     $name     Field name / meta key.
+	 * @param string     $label    Field label.
+	 * @param int        $selected Currently selected product ID.
+	 * @param string     $empty    Empty-option label.
+	 * @param \WP_Post[] $products Product posts.
+	 */
+	private function product_select( string $name, string $label, int $selected, string $empty, array $products ): void {
+		$id = 'mdds-' . sanitize_key( $name );
+		?>
+		<p class="mdds-field">
+			<label for="<?php echo esc_attr( $id ); ?>"><strong><?php echo esc_html( $label ); ?></strong></label>
+			<select id="<?php echo esc_attr( $id ); ?>" name="<?php echo esc_attr( $name ); ?>" class="widefat">
+				<option value="0"><?php echo esc_html( $empty ); ?></option>
+				<?php foreach ( $products as $product ) : ?>
+					<option value="<?php echo esc_attr( (string) $product->ID ); ?>" <?php selected( $selected, $product->ID ); ?>>
+						<?php echo esc_html( $product->post_title ); ?>
+					</option>
+				<?php endforeach; ?>
+			</select>
+		</p>
+		<?php
+	}
+
+	/**
+	 * Render the product selector.
+	 *
+	 * @param \WP_Post $post Current post.
+	 */
+	public function render( \WP_Post $post ): void {
+		wp_nonce_field( self::NONCE_ACTION, self::NONCE_NAME );
+
+		$access_product  = (int) get_post_meta( $post->ID, Data::META_PRODUCT_ID, true );
+		$consult_product = (int) get_post_meta( $post->ID, Data::META_CONSULT_PRODUCT, true );
+
+		$products = get_posts(
+			array(
+				'post_type'        => 'product',
+				'post_status'      => 'publish',
+				'posts_per_page'   => 200,
+				'orderby'          => 'title',
+				'order'            => 'ASC',
+				'no_found_rows'    => true,
+				'suppress_filters' => false,
+			)
+		);
+
+		$this->product_select(
+			Data::META_PRODUCT_ID,
+			__( 'מוצר שרכישתו פותחת גישה ליחידה', 'md-deschool' ),
+			$access_product,
+			__( '— ללא מוצר (גישה לעורכים בלבד) —', 'md-deschool' ),
+			$products
+		);
+
+		$this->product_select(
+			Data::META_CONSULT_PRODUCT,
+			__( 'מוצר ייעוץ מסובסד (לאזור הייעוץ)', 'md-deschool' ),
+			$consult_product,
+			__( '— ללא מוצר ייעוץ —', 'md-deschool' ),
+			$products
+		);
+	}
+
+	/**
+	 * Save the linked product id.
+	 *
+	 * @param int $post_id Post ID.
+	 */
+	public function save( int $post_id ): void {
+		if ( ! isset( $_POST[ self::NONCE_NAME ] ) || ! wp_verify_nonce( sanitize_key( wp_unslash( $_POST[ self::NONCE_NAME ] ) ), self::NONCE_ACTION ) ) {
+			return;
+		}
+		if ( ! current_user_can( 'edit_post', $post_id ) ) {
+			return;
+		}
+
+		$product_id = isset( $_POST[ Data::META_PRODUCT_ID ] ) ? absint( wp_unslash( $_POST[ Data::META_PRODUCT_ID ] ) ) : 0;
+		update_post_meta( $post_id, Data::META_PRODUCT_ID, $product_id );
+
+		$consult_id = isset( $_POST[ Data::META_CONSULT_PRODUCT ] ) ? absint( wp_unslash( $_POST[ Data::META_CONSULT_PRODUCT ] ) ) : 0;
+		update_post_meta( $post_id, Data::META_CONSULT_PRODUCT, $consult_id );
+	}
+
+	/**
+	 * Whether a user has purchased the product linked to a unit.
+	 *
+	 * @param int $user_id User ID.
+	 * @param int $unit_id Unit ID.
+	 */
+	public static function has_purchased( int $user_id, int $unit_id ): bool {
+		if ( $user_id <= 0 || ! function_exists( 'wc_customer_bought_product' ) ) {
+			return false;
+		}
+
+		$product_id = (int) get_post_meta( $unit_id, Data::META_PRODUCT_ID, true );
+		if ( $product_id <= 0 ) {
+			return false;
+		}
+
+		$user = get_userdata( $user_id );
+		if ( ! $user ) {
+			return false;
+		}
+
+		return wc_customer_bought_product( $user->user_email, $user_id, $product_id );
+	}
+
+	/**
+	 * Get the purchase URL (add-to-cart) for a unit's product.
+	 *
+	 * @param int $unit_id Unit ID.
+	 */
+	public static function get_purchase_url( int $unit_id ): string {
+		$product_id = (int) get_post_meta( $unit_id, Data::META_PRODUCT_ID, true );
+		if ( $product_id <= 0 ) {
+			return '';
+		}
+
+		$product = function_exists( 'wc_get_product' ) ? wc_get_product( $product_id ) : null;
+		if ( ! $product ) {
+			return '';
+		}
+
+		return (string) $product->get_permalink();
+	}
+
+	/**
+	 * Get the formatted price HTML for the unit's access product.
+	 *
+	 * @param int $unit_id Unit ID.
+	 * @return string Price HTML (may contain markup), or ''.
+	 */
+	public static function get_price_html( int $unit_id ): string {
+		$product_id = (int) get_post_meta( $unit_id, Data::META_PRODUCT_ID, true );
+		if ( $product_id <= 0 || ! function_exists( 'wc_get_product' ) ) {
+			return '';
+		}
+
+		$product = wc_get_product( $product_id );
+
+		return $product ? (string) $product->get_price_html() : '';
+	}
+
+	/**
+	 * Get a direct add-to-cart URL for the unit's access product.
+	 *
+	 * @param int $unit_id Unit ID.
+	 * @return string
+	 */
+	public static function get_add_to_cart_url( int $unit_id ): string {
+		$product_id = (int) get_post_meta( $unit_id, Data::META_PRODUCT_ID, true );
+		if ( $product_id <= 0 || ! function_exists( 'wc_get_product' ) ) {
+			return '';
+		}
+
+		$product = wc_get_product( $product_id );
+		if ( ! $product ) {
+			return '';
+		}
+
+		return add_query_arg( 'add-to-cart', $product_id, $product->get_permalink() );
+	}
+
+	/**
+	 * Get the add-to-cart URL for the unit's consultation product.
+	 *
+	 * @param int $unit_id Unit ID.
+	 */
+	public static function get_consult_cart_url( int $unit_id ): string {
+		$product_id = (int) get_post_meta( $unit_id, Data::META_CONSULT_PRODUCT, true );
+		if ( $product_id <= 0 || ! function_exists( 'wc_get_product' ) ) {
+			return '';
+		}
+
+		$product = wc_get_product( $product_id );
+		if ( ! $product ) {
+			return '';
+		}
+
+		// Direct add-to-cart link; falls back to the product page if needed.
+		return add_query_arg( 'add-to-cart', $product_id, $product->get_permalink() );
+	}
+}
